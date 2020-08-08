@@ -1,148 +1,126 @@
-import React, { Component } from "react";
+import React, { useState, lazy, Suspense, useContext } from "react";
 import "./App.css";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
-import Home from "./components/Home";
-import Dashboard from "./components/Dashboard";
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect
+} from 'react-router-dom';
 import SignIn from "./components/auth/SignIn";
 import SignUp from "./components/auth/SignUp";
-import axios from "axios";
-import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import ToggleSwitch from "@material-ui/core/Switch";
+import {
+  AuthProvider,
+  AuthContext
+} from './context/auth-context';
+import { FetchProvider } from './context/fetch-context';
+import { Paper } from "@material-ui/core"
 
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: "#19cffc",
+const LoadingFallback = () => (
+  <div>
+    <div className="p-4">Loading...</div>
+  </div>
+);
+
+const Dashboard = lazy(() => import('./components/Dashboard'));
+
+const UnauthenticatedRoutes = () => (
+  <Switch>
+    <Route path="/signin">
+      <SignIn />
+    </Route>
+    <Route path="/signup">
+      <SignUp />
+    </Route>
+    <Route path="/da">
+      <Dashboard />
+    </Route>
+    <Route path="*">
+      <div>404 hehe custom</div>
+    </Route>
+  </Switch>
+);
+
+const AuthenticatedRoute = ({ children, ...rest }) => {
+  const auth = useContext(AuthContext);
+  return (
+    <Route
+      {...rest}
+      render={() =>
+        auth.isAuthenticated() ? (
+          <div>{children}</div>
+        ) : (
+          <Redirect to="/signin" />
+        )
+      }
+    ></Route>
+  );
+};
+
+const AppRoutes = () => {
+  return (
+    <>
+      <Suspense fallback={<LoadingFallback />}>
+        <Switch>
+          <AuthenticatedRoute exact path="/">
+            <Dashboard />
+          </AuthenticatedRoute>
+          <UnauthenticatedRoutes />
+          {/* <AuthenticatedRoute path="/account">
+            <Account />
+          </AuthenticatedRoute>
+          <AuthenticatedRoute path="/settings">
+            <Settings />
+          </AuthenticatedRoute>
+          <AuthenticatedRoute path="/users">
+            <Users />
+          </AuthenticatedRoute> */}
+        </Switch>
+      </Suspense>
+    </>
+  );
+};
+
+const App = () => {
+  const [darkState, setDarkState] = useState(false)
+  const lightMode = darkState ? 'dark' : 'light'
+  const theme = createMuiTheme({
+    palette: {
+      primary: {
+        main: "#19cffc",
+      },
+      type: lightMode
     },
-  },
-});
+  })
 
-export default class App extends Component {
-  constructor() {
-    super();
-
-    this.state = {
-      loggedInStatus: null,
-      user: {},
-      darkState: false,
-    };
-
-    this.handleLogin = this.handleLogin.bind(this);
-    this.handleLogout = this.handleLogout.bind(this);
-    this.handleLightChange = this.handleLightChange(this);
-
-    theme.palette.type = this.state.darkState ? "dark" : "light";
+  const handleLightChange = () => {
+    setDarkState(!darkState)
   }
 
-  checkLoginStatus() {
-    axios
-      .get("http://localhost:3001/logged_in", { withCredentials: true })
-      .then((response) => {
-        if (response.data.logged_in && this.state.loggedInStatus == null) {
-          this.setState({
-            loggedInStatus: "LOGGED_IN",
-            user: response.data.user,
-          });
-        } else if (
-          !response.data.logged_in &&
-          this.state.loggedInStatus === "LOGGED_IN"
-        ) {
-          this.setState({
-            loggedInStatus: "NOT_LOGGED_IN",
-            user: {},
-          });
-        }
-      })
-      .catch((error) => {
-        console.log("check login error", error);
-      });
-  }
+  return (
+    <ThemeProvider theme={theme}>
+      {/* <Paper style={{ height: '100vh' }}> */}
 
-  handleLogin(data) {
-    this.setState({
-      loggedInStatus: "LOGGED_IN",
-      user: data.user,
-    });
-  }
-
-  handleLogout() {
-    this.setState({
-      loggedInStatus: null,
-      user: {},
-    });
-  }
-
-  handleLightChange() {
-    console.log(this)
-    this.setState(({darkState}) => ({ darkState: !darkState }));
-  }
-
-  componentDidMount() {
-    this.checkLoginStatus();
-  }
-
-  render() {
-    return (
-      <MuiThemeProvider theme={theme}>
-        <div className="app">
-          <div style={{position: 'absolute', right: 0, top: 0}}>
-            <ToggleSwitch
-              checked={this.state.darkState}
-              onChange={this.handleLightChange}
-            />
-          </div>
-          {/* <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div> */}
-          <BrowserRouter>
-            <Switch>
-              <Route
-                exact
-                path={"/"}
-                render={(props) => (
-                  <Home
-                    {...props}
-                    loggedInStatus={this.state.loggedInStatus}
-                    handleLogin={this.handleLogin}
-                    handleLogout={this.handleLogout}
+        <Router>
+          <AuthProvider>
+            <FetchProvider>
+              <div style={{position: 'absolute', right: 0, top: 0}}>
+                  <ToggleSwitch
+                    checked={darkState}
+                    onChange={handleLightChange}
                   />
-                )}
-              />
+              </div>
+              <div className="bg-gray-100">
+                <AppRoutes />
+              </div>
+            </FetchProvider>
+          </AuthProvider>
+        </Router>
 
-              <Route
-                exact
-                path={"/dashboard"}
-                render={(props) => (
-                  <Dashboard
-                    {...props}
-                    loggedInStatus={this.state.loggedInStatus}
-                  />
-                )}
-              />
-
-              <Route
-                exact
-                path={"/signin"}
-                render={(props) => (
-                  <SignIn
-                    {...props}
-                    loggedInStatus={this.state.loggedInStatus}
-                  />
-                )}
-              />
-
-              <Route
-                exact
-                path={"/signup"}
-                render={(props) => (
-                  <SignUp
-                    {...props}
-                    loggedInStatus={this.state.loggedInStatus}
-                  />
-                )}
-              />
-            </Switch>
-          </BrowserRouter>
-        </div>
-      </MuiThemeProvider>
-    );
-  }
+      {/* </Paper> */}
+    </ThemeProvider>
+  )
 }
+
+export default App

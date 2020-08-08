@@ -1,14 +1,16 @@
 import React from 'react'
+import Container from '@material-ui/core/Container'
+import CssBaseline from '@material-ui/core/CssBaseline'
 
-export const Dashboard = props => {
+export default function Dashboard() {
   return (
     <div>
-      <div>
-        <h1>Dashboard</h1>
-        <h1>{props.loggedInStatus}</h1>
-      </div>
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <div>
+          <p>hehe</p>
+        </div>
+      </Container>
     </div>
   )
 }
-
-export default Dashboard

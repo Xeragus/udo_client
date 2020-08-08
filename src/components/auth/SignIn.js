@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import TextField from '@material-ui/core/TextField'
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-export default function SignIn() {
+const SignIn = (props) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -43,7 +43,9 @@ export default function SignIn() {
     { withCredentials: true }
     ).then(response => {
       if (response.data.logged_in) {
-        this.props.handleSuccessfulAuth(response.data)
+        // props.handleSuccessfulAuth(response.data)
+        props.handleLogin(response.data)
+        props.history.push('/')
       }
     }).catch(error => {
       console.log('error', error)
@@ -67,7 +69,6 @@ export default function SignIn() {
               label="Email Address"
               name="email"
               autoComplete="email"
-              autoFocus
               onChange={e => setEmail(e.target.value)}
             />
             <TextField
@@ -110,3 +111,5 @@ export default function SignIn() {
     </div>
   )
 }
+
+export default SignIn
