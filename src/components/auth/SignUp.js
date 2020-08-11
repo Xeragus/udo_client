@@ -10,7 +10,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Box from '@material-ui/core/Box';
 import LogoHeader from '../LogoHeader'
-import * as Yup from 'yup'
 import { AuthContext } from '../../context/auth-context'
 import { Redirect } from 'react-router-dom';
 import SuccessAlert from '../alerts/Success'
@@ -49,8 +48,6 @@ export default function SignUp() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmationPassword, setConfirmationPassword] = useState('')
-
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -76,7 +73,7 @@ export default function SignUp() {
   
       setTimeout(() => {
         setRedirectOnLogin(true);
-      }, 5000);
+      }, 3000);
     } catch (error) {
       setLoginLoading(false);
       setSignupError('Email has already been taken');
@@ -86,7 +83,7 @@ export default function SignUp() {
 
   return (
     <>
-      {/* {redirectOnLogin && <Redirect to="/signin" />} */}
+      {redirectOnLogin && <Redirect to="/signin" />}
       <LogoHeader />
       <Container component="main" maxWidth="xs">
         <CssBaseline />

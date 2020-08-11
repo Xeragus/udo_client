@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useContext } from 'react'
 import Button from '@material-ui/core/Button'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import TextField from '@material-ui/core/TextField'
@@ -6,8 +6,12 @@ import Link from '@material-ui/core/Link'
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
 import Container from '@material-ui/core/Container'
-import axios from 'axios'
 import LogoHeader from '../LogoHeader'
+import { publicFetch } from '../../util/fetch';
+import ErrorAlert from '../alerts/Error'
+import { AuthContext } from '../../context/auth-context'
+import { Redirect } from 'react-router-dom';
+import Box from '@material-ui/core/Box';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -28,38 +32,50 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const SignIn = (props) => {
+  const authContext = useContext(AuthContext)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+  const [redirectOnLogin, setRedirectOnLogin] = useState(false)
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [signInError, setSignInError] = useState();
   const classes = useStyles()
-  const handleSubmit = (event) => {
-    axios.post('http://localhost:3001/sessions', 
-    {
-      user: {
-        email: email,
-        password: password
-      }
-    },
-    { withCredentials: true }
-    ).then(response => {
-      if (response.data.logged_in) {
-        // props.handleSuccessfulAuth(response.data)
-        props.handleLogin(response.data)
-        props.history.push('/')
-      }
-    }).catch(error => {
-      console.log('error', error)
-    })
+  const handleSubmit = async (event) => {
     event.preventDefault()
-  }
+
+    try {
+      setLoginLoading(true);
+
+      const credentials = { 
+        email: email, 
+        password: password 
+      }
+
+      const { data } = await publicFetch.post(
+        'http://localhost:3001/users/login',
+        credentials
+      );
+
+      authContext.setAuthState(data);
+      setSignInError('');
+  
+      setRedirectOnLogin(true);
+    } catch (error) {
+      setLoginLoading(false);
+      setSignInError('Email has already been taken');
+    }
+  };
 
   return (
-    <div>
+    <>
+      {redirectOnLogin && <Redirect to="/" />}
       <LogoHeader />
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <div className={classes.paper}>
           <form className={classes.form} noValidate>
+            <Box mb={5}>
+              {signInError && (<ErrorAlert message={signInError} />)}
+            </Box>
             <TextField
               variant="outlined"
               margin="normal"
@@ -91,7 +107,7 @@ const SignIn = (props) => {
               className={classes.submit}
               onClick={e => handleSubmit(e)}
             >
-              Sign In
+              {loginLoading ? 'Loading...' : 'Sign In'}
             </Button>
             <Grid container>
               <Grid item xs>
@@ -108,7 +124,7 @@ const SignIn = (props) => {
           </form>
         </div>
       </Container>
-    </div>
+    </>
   )
 }
 

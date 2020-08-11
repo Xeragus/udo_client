@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import logo from '../logo.svg'
 
 const useStyles = makeStyles((theme) => ({
-  appName: {marginBottom: 0, fontWeight: 100, color: '#19cffc', fontSize: '70px'},
+  appName: {marginBottom: 0, marginTop: 0, paddingTop: '70px', fontWeight: 100, color: '#19cffc', fontSize: '70px'},
   appDescription: {marginTop: 0, color: '#9ba1af', fontWeight: '300'},
   logo: { width: '130px', height: '130px' },
   header: { textAlign: 'center' }

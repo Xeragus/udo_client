@@ -15,12 +15,11 @@ import {
   AuthContext
 } from './context/auth-context';
 import { FetchProvider } from './context/fetch-context';
-import { Paper } from "@material-ui/core"
+import Box from '@material-ui/core/Box';
+import Paper from '@material-ui/core/Paper';
 
 const LoadingFallback = () => (
-  <div>
-    <div className="p-4">Loading...</div>
-  </div>
+  <div></div>
 );
 
 const Dashboard = lazy(() => import('./components/Dashboard'));
@@ -100,25 +99,25 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      {/* <Paper style={{ height: '100vh' }}> */}
+      <Paper style={{ height: '100vh' }}>
 
         <Router>
           <AuthProvider>
             <FetchProvider>
-              <div style={{position: 'absolute', right: 0, top: 0}}>
-                  <ToggleSwitch
-                    checked={darkState}
-                    onChange={handleLightChange}
-                  />
-              </div>
               <div className="bg-gray-100">
+                <div style={{position: 'absolute', right: 0, top: 0}}>
+                    <ToggleSwitch
+                      checked={darkState}
+                      onChange={handleLightChange}
+                    />
+                </div>
                 <AppRoutes />
               </div>
             </FetchProvider>
           </AuthProvider>
         </Router>
 
-      {/* </Paper> */}
+      </Paper>
     </ThemeProvider>
   )
 }
