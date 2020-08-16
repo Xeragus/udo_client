@@ -12,6 +12,7 @@ import ErrorAlert from '../alerts/Error'
 import { AuthContext } from '../../context/auth-context'
 import { Redirect } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
+import { useHistory } from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -31,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const SignIn = (props) => {
+const SignIn = () => {
   const authContext = useContext(AuthContext)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -39,6 +40,12 @@ const SignIn = (props) => {
   const [loginLoading, setLoginLoading] = useState(false);
   const [signInError, setSignInError] = useState();
   const classes = useStyles()
+  const history = useHistory()
+
+  if (authContext.isAuthenticated()) {
+    history.push('/')
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
 
@@ -61,7 +68,7 @@ const SignIn = (props) => {
       setRedirectOnLogin(true);
     } catch (error) {
       setLoginLoading(false);
-      setSignInError('Email has already been taken');
+      setSignInError('Invalid email or password');
     }
   };
 

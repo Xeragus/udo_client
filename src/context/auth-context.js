@@ -43,11 +43,11 @@ const AuthProvider = ({ children }) => {
   }
 
   const isAuthenticated = () => {
-    if (!authState.token || !authState.expires_at) {
+    if (!localStorage.token || !localStorage.expires_at) {
       return false
     }
     return (
-      new Date().getTime() / 1000 < authState.expires_at
+      new Date().getTime() / 1000 < localStorage.expires_at
     )
   }
 

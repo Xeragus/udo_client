@@ -6,13 +6,15 @@ import Tab from '@material-ui/core/Tab';
 import Box from '@material-ui/core/Box';
 import ListAltOutlinedIcon from '@material-ui/icons/ListAltOutlined';
 import AdjustOutlinedIcon from '@material-ui/icons/AdjustOutlined';
-import Typography from '@material-ui/core/Typography';
+import TasksWrapper from './TasksWrapper'
+import GoalsWrapper from './GoalsWrapper'
 
 const useStyles = makeStyles({
   root: {
     flexGrow: 1,
     maxWidth: 1000,
-    margin: '0 auto'
+    margin: '0 auto',
+    background: '#fff'
   },
 });
 
@@ -29,18 +31,12 @@ function TabPanel(props) {
     >
       {value === index && (
         <Box p={3}>
-          <Typography>{children}</Typography>
+          <div>{children}</div>
         </Box>
       )}
     </div>
   );
 }
-
-// TabPanel.propTypes = {
-//   children: PropTypes.node,
-//   index: PropTypes.any.isRequired,
-//   value: PropTypes.any.isRequired,
-// };
 
 export default function IconLabelTabs() {
   const classes = useStyles();
@@ -51,7 +47,7 @@ export default function IconLabelTabs() {
   };
 
   return (
-    <Box pt={'100px'}>
+    <Box>
       <Paper square className={classes.root}>
         <Tabs
           value={value}
@@ -66,10 +62,10 @@ export default function IconLabelTabs() {
           <Tab icon={<AdjustOutlinedIcon />} label="Goals" />
         </Tabs>
         <TabPanel value={value} index={0}>
-          Item One
+          <TasksWrapper />
         </TabPanel>
         <TabPanel value={value} index={1}>
-          Item Two
+          <GoalsWrapper />
         </TabPanel>
       </Paper>
     </Box>

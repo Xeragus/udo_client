@@ -15,6 +15,7 @@ import { Redirect } from 'react-router-dom';
 import SuccessAlert from '../alerts/Success'
 import ErrorAlert from '../alerts/Error'
 import { publicFetch } from '../../util/fetch';
+import { useHistory } from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -48,6 +49,11 @@ export default function SignUp() {
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const history = useHistory()
+
+  if (authContext.isAuthenticated) {
+    history.push('/')
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()

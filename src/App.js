@@ -9,21 +9,18 @@ import {
 import SignIn from "./components/auth/SignIn";
 import SignUp from "./components/auth/SignUp";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
-import ToggleSwitch from "@material-ui/core/Switch";
 import {
   AuthProvider,
   AuthContext
 } from './context/auth-context';
 import { FetchProvider } from './context/fetch-context';
-import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
 
 const LoadingFallback = () => (
   <div></div>
 );
-
-const Dashboard = lazy(() => import('./components/Dashboard'));
-
+const Home = lazy(() => import('./components/Home'));
+const Stats = lazy(() => import('./components/Stats'));
 const UnauthenticatedRoutes = () => (
   <Switch>
     <Route path="/signin">
@@ -32,21 +29,18 @@ const UnauthenticatedRoutes = () => (
     <Route path="/signup">
       <SignUp />
     </Route>
-    <Route path="/da">
-      <Dashboard />
-    </Route>
     <Route path="*">
       <div>404 hehe custom</div>
     </Route>
   </Switch>
 );
-
 const AuthenticatedRoute = ({ children, ...rest }) => {
   const auth = useContext(AuthContext);
+
   return (
     <Route
       {...rest}
-      render={() =>
+      render={() => 
         auth.isAuthenticated() ? (
           <div>{children}</div>
         ) : (
@@ -56,25 +50,18 @@ const AuthenticatedRoute = ({ children, ...rest }) => {
     ></Route>
   );
 };
-
 const AppRoutes = () => {
   return (
     <>
       <Suspense fallback={<LoadingFallback />}>
         <Switch>
           <AuthenticatedRoute exact path="/">
-            <Dashboard />
+            <Home />
+          </AuthenticatedRoute>
+          <AuthenticatedRoute exact path="/stats">
+            <Stats />
           </AuthenticatedRoute>
           <UnauthenticatedRoutes />
-          {/* <AuthenticatedRoute path="/account">
-            <Account />
-          </AuthenticatedRoute>
-          <AuthenticatedRoute path="/settings">
-            <Settings />
-          </AuthenticatedRoute>
-          <AuthenticatedRoute path="/users">
-            <Users />
-          </AuthenticatedRoute> */}
         </Switch>
       </Suspense>
     </>
@@ -83,13 +70,12 @@ const AppRoutes = () => {
 
 const App = () => {
   const [darkState, setDarkState] = useState(false)
-  const lightMode = darkState ? 'dark' : 'light'
   const theme = createMuiTheme({
     palette: {
       primary: {
         main: "#19cffc",
       },
-      type: lightMode
+      type: 'light'
     },
   })
 
@@ -100,23 +86,15 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <Paper style={{ height: '100vh' }}>
-
         <Router>
           <AuthProvider>
             <FetchProvider>
-              <div className="bg-gray-100">
-                <div style={{position: 'absolute', right: 0, top: 0}}>
-                    <ToggleSwitch
-                      checked={darkState}
-                      onChange={handleLightChange}
-                    />
-                </div>
+              <div>
                 <AppRoutes />
               </div>
             </FetchProvider>
           </AuthProvider>
         </Router>
-
       </Paper>
     </ThemeProvider>
   )
