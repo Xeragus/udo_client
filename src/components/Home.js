@@ -32,7 +32,6 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.toolbar,
   },
   appBar: {
-    zIndex: 1,
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
@@ -102,14 +101,10 @@ export default function ActionCenter() {
   const classes = useStyles();
   const [open, setOpen] = useState(true);
   const handleDrawerOpen = () => {
-    console.log(open)
     setOpen(true);
-    console.log(open)
   };
   const handleDrawerClose = () => {
-    console.log(open)
     setOpen(false);
-    console.log(open)
   };
 
   return (

@@ -15,13 +15,13 @@ export default function MenuItems(props) {
 
   return (
     <div>
-      <ListItem button component={Link} to="/" selected={props.page == 'actionCenter' ? true : false}>
+      <ListItem button component={Link} to="/" selected={props.page === 'actionCenter' ? true : false}>
         <ListItemIcon>
           <DashboardIcon />
         </ListItemIcon>
         <ListItemText primary="Action Center" />
       </ListItem>
-      <ListItem button component={Link} to="/stats" selected={props.page == 'stats' ? true : false}>
+      <ListItem button component={Link} to="/stats" selected={props.page === 'stats' ? true : false}>
         <ListItemIcon>
           <PieChartIcon />
         </ListItemIcon>

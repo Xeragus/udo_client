@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense, useContext } from "react";
+import React, { lazy, Suspense, useContext } from "react";
 import "./App.css";
 import {
   BrowserRouter as Router,
@@ -69,7 +69,6 @@ const AppRoutes = () => {
 };
 
 const App = () => {
-  const [darkState, setDarkState] = useState(false)
   const theme = createMuiTheme({
     palette: {
       primary: {
@@ -78,10 +77,6 @@ const App = () => {
       type: 'light'
     },
   })
-
-  const handleLightChange = () => {
-    setDarkState(!darkState)
-  }
 
   return (
     <ThemeProvider theme={theme}>
