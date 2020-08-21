@@ -1,56 +1,62 @@
-import React, { useState } from 'react'
-import Button from '@material-ui/core/Button';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import { makeStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DateFnsUtils from '@date-io/date-fns'; // choose your lib
+import React, { useState, useEffect } from 'react'
+import Button from '@material-ui/core/Button'
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline'
+import { makeStyles } from '@material-ui/core/styles'
+import TextField from '@material-ui/core/TextField'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DateFnsUtils from '@date-io/date-fns' // choose your lib
 import {
   DateTimePicker,
   MuiPickersUtilsProvider,
-} from '@material-ui/pickers';
+} from '@material-ui/pickers'
 import axios from 'axios'
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ListItemText from '@material-ui/core/ListItemText';
+import Checkbox from '@material-ui/core/Checkbox'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import TaskItem from './TaskItem'
 
 const useStyles = makeStyles((theme) => ({
   button: {
     margin: theme.spacing(1),
+  },
+  completed: {
+    textDecoration: 'line-through',
+    color: '#808080'
+  },
+  task: {
+    fontSize: '15px'
   }
-}));
+}))
 
 export default function TasksWrapper() {
-  const classes = useStyles();
+  const classes = useStyles()
   const [shouldOpenCreateModal, setShouldOpenCreateModal] = useState(false)
   const today = new Date()
-  const [selectedDate, handleDateChange] = useState((new Date(today.setHours(23, 59, 59, 999))));
+  const [selectedDate, handleDateChange] = useState((new Date(today.setHours(23, 59, 59, 999))))
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
-  const [checked, setChecked] = React.useState([0]);
+  const [tasks, setTasks] = useState([])
 
-  const handleToggle = (value) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
-
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
-    }
-
-    setChecked(newChecked);
-  };
+  const fetchTasks = () => {
+    axios.get('http://localhost:3001/tasks', {
+      headers: {
+        'Authorization': `Basic ${localStorage.getItem('token')}` 
+      }
+    })
+    .then((res) => {
+      setTasks(res.data)
+      console.log(res.data)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  }
 
   const handleSubmit = () => {
-    console.log('stiga')
     axios.post('http://localhost:3001/tasks', {
       name,
       deadline: selectedDate,
@@ -62,6 +68,9 @@ export default function TasksWrapper() {
     })
     .then((res) => {
       setShouldOpenCreateModal(false)
+      setTimeout(() => {
+        fetchTasks()
+      }, 400)
     })
     .catch((err) => {
       console.log(err)
@@ -69,6 +78,24 @@ export default function TasksWrapper() {
   }
 
   const handleTaskCreateModalClose = () => { setShouldOpenCreateModal(false) }
+
+  const toggleTaskCompleted = (task) => {
+    axios.patch(`http://localhost:3001/tasks/${task.id}`, { 
+      is_completed: !task.is_completed 
+    }, {
+      headers: {
+        'Authorization': `Basic ${localStorage.getItem('token')}` 
+      }
+    })
+    .then((res) => {
+      fetchTasks()
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  }
+
+  useEffect(fetchTasks, [])
 
   return (
     <div>
@@ -126,23 +153,23 @@ export default function TasksWrapper() {
         </DialogActions>
       </Dialog>
       <List className={classes.root}>
-        {[0, 1, 2, 3].map((value) => {
-          const labelId = `checkbox-list-label-${value}`;
+        {tasks.map((task) => {
+          const labelId = `checkbox-list-label-${task.id}`
 
           return (
-            <ListItem key={value} role={undefined} dense button onClick={handleToggle(value)}>
+            <ListItem key={task.id} role={undefined} dense button onClick={() => { toggleTaskCompleted(task) }}>
               <ListItemIcon>
                 <Checkbox
                   edge="start"
-                  checked={checked.indexOf(value) !== -1}
+                  checked={task.is_completed}
                   tabIndex={-1}
                   disableRipple
                   inputProps={{ 'aria-labelledby': labelId }}
                 />
               </ListItemIcon>
-              <ListItemText id={labelId} primary={`Line item ${value + 1}`} />
+              <TaskItem id={labelId} task={task} />
             </ListItem>
-          );
+          )
         })}
       </List>
     </div>
