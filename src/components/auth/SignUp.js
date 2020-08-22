@@ -51,7 +51,7 @@ export default function SignUp() {
   const [password, setPassword] = useState('')
   const history = useHistory()
 
-  if (authContext.isAuthenticated) {
+  if (authContext.isAuthenticated()) {
     history.push('/')
   }
 

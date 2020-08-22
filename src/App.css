@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+#date_section .MuiButton-startIcon {
+  margin-right: 0!important;
+}
