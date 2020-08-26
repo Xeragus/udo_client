@@ -9,7 +9,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DateFnsUtils from '@date-io/date-fns' // choose your lib
 import {
-  DateTimePicker,
+  DatePicker,
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers'
 import axios from 'axios'
@@ -22,6 +22,7 @@ import Grid from '@material-ui/core/Grid';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import { isYesterday, isTomorrow } from 'date-fns'
+import TodayIcon from '@material-ui/icons/Today';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -43,12 +44,13 @@ export default function TasksWrapper() {
   const classes = useStyles()
   const [shouldOpenCreateModal, setShouldOpenCreateModal] = useState(false)
   const today = new Date()
-  const [selectedDate, handleDateChange] = useState((new Date(today.setHours(23, 59, 59, 999))))
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [tasks, setTasks] = useState([])
-  const [currentDate, setCurrentDate] = useState(new Date())
+  const [currentDate, handleDateChange] = useState((new Date(today.setHours(23, 59, 59, 999))))
+  const [selectedDate, setSelectedDate] = useState((currentDate))
   const [displayedDate, setDisplayedDate] = useState(currentDate.toDateString())
+  const [isPastDate, setIsPastDate] = useState(false)
 
   const fetchTasks = (date = null) => {
     date = date ? date : new Date()
@@ -81,7 +83,7 @@ export default function TasksWrapper() {
     .then((res) => {
       setShouldOpenCreateModal(false)
       setTimeout(() => {
-        fetchTasks()
+        fetchTasks(currentDate)
       }, 400)
     })
     .catch((err) => {
@@ -100,7 +102,7 @@ export default function TasksWrapper() {
       }
     })
     .then((res) => {
-      fetchTasks()
+      fetchTasks(currentDate)
     })
     .catch((err) => {
       console.log(err)
@@ -109,8 +111,14 @@ export default function TasksWrapper() {
 
   const handleCurrentDateChange = (addOrDeductDay) => {
     currentDate.setDate(currentDate.getDate() + addOrDeductDay)
-    setCurrentDate(currentDate)
+    handleDateChange(currentDate)
     setDisplayedDate(currentDate.toDateString())
+
+    if (isInThePast(currentDate)) {
+      setIsPastDate(true)
+    } else {
+      setIsPastDate(false)
+    }
 
     fetchTasks(currentDate)
   }
@@ -124,24 +132,28 @@ export default function TasksWrapper() {
         date.getFullYear() === today.getFullYear()
   }
 
-  const isYesterday = (date) => {
-    const today = new Date()
-    return date.getDate() === today.getDate() - 1 &&
-        date.getMonth() === today.getMonth() &&
-        date.getFullYear() === today.getFullYear()
-  }
+  // const isYesterday = (date) => {
+  //   const today = new Date()
+  //   return date.getDate() === today.getDate() - 1 &&
+  //       date.getMonth() === today.getMonth() &&
+  //       date.getFullYear() === today.getFullYear()
+  // }
 
-  const isTomorrow = (date) => {
-    const today = new Date()
-    return date.getDate() === today.getDate() + 1 &&
-        date.getMonth() === today.getMonth() &&
-        date.getFullYear() === today.getFullYear()
+  // const isTomorrow = (date) => {
+  //   const today = new Date()
+  //   return date.getDate() === today.getDate() + 1 &&
+  //       date.getMonth() === today.getMonth() &&
+  //       date.getFullYear() === today.getFullYear()
+  // }
+
+  const isInThePast = (date) => {
+    return date < new Date()
   }
 
   const differenceInDays = (date) => {
     const today = new Date()
     const diffTime = today - date;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
     if (diffDays > 0) {
       return `${Math.abs(diffDays)} days ago`
@@ -165,7 +177,7 @@ export default function TasksWrapper() {
   return (
     <div>
       <Grid container spacing={3}>
-        <Grid item xs={7}>
+        <Grid item xs={2}>
           <Button
             variant="contained"
             color="secondary"
@@ -174,8 +186,9 @@ export default function TasksWrapper() {
             onClick={() => { setShouldOpenCreateModal(true) }}
           >Add</Button>
         </Grid>
-        <Grid item xs={5} id='date_section'>
-          <Grid container spacing={2} alignItems="center">
+        <Grid item xs={2}></Grid>
+        <Grid item xs={6} id='date_section'>
+          <Grid container spacing={2} alignItems="center" direction="row" justify="flex-end">
             <Grid item xs={3}>
               <Button
                 variant="contained"
@@ -183,11 +196,11 @@ export default function TasksWrapper() {
                 startIcon={<ChevronLeftIcon />}
                 onClick={() => { handleCurrentDateChange(-1) }} />
             </Grid>
-            <Grid item xs={6} style={{ textAlign: 'center' }}>
+            <Grid item xs={4} style={{ textAlign: 'center' }}>
               <span style={{ fontSize: '18px' }}>{currentDate.toDateString()}</span><br />
               <span><i>{getDayDescription(currentDate)}</i></span>
             </Grid>
-            <Grid item xs={3}>
+            <Grid item xs={3} style={{ textAlign: 'right' }}>
               <Button
                 variant="contained"
                 className={`${classes.calendarButton} ${classes.button}`}
@@ -196,8 +209,15 @@ export default function TasksWrapper() {
             </Grid>
           </Grid>
         </Grid>
+        <Grid item xs={2} style={{ textAlign: 'right' }}>
+          <Button
+            variant="contained"
+            className={classes.button}
+          >
+            {<TodayIcon/>}
+          </Button>
+        </Grid>
       </Grid>
-      
       <Dialog open={shouldOpenCreateModal} 
               onClose={handleTaskCreateModalClose}
               aria-labelledby="form-dialog-title">
@@ -214,10 +234,10 @@ export default function TasksWrapper() {
             onChange={(e) => { setName(e.target.value) }}
           />
           <MuiPickersUtilsProvider utils={DateFnsUtils} >
-            <DateTimePicker
-              value={selectedDate}
+            <DatePicker
+              value={currentDate}
               disablePast
-              ampm={false}
+              // onChange={(e) => { setSelectedDate(e.target.value) }}
               onChange={handleDateChange}
               label="Finish before"
               showTodayButton
