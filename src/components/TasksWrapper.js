@@ -27,6 +27,7 @@ import TodayIcon from '@material-ui/icons/Today';
 const useStyles = makeStyles((theme) => ({
   button: {
     margin: theme.spacing(1),
+    color: '#fff'
   },
   completed: {
     textDecoration: 'line-through',
@@ -132,20 +133,6 @@ export default function TasksWrapper() {
         date.getFullYear() === today.getFullYear()
   }
 
-  // const isYesterday = (date) => {
-  //   const today = new Date()
-  //   return date.getDate() === today.getDate() - 1 &&
-  //       date.getMonth() === today.getMonth() &&
-  //       date.getFullYear() === today.getFullYear()
-  // }
-
-  // const isTomorrow = (date) => {
-  //   const today = new Date()
-  //   return date.getDate() === today.getDate() + 1 &&
-  //       date.getMonth() === today.getMonth() &&
-  //       date.getFullYear() === today.getFullYear()
-  // }
-
   const isInThePast = (date) => {
     return date < new Date()
   }
@@ -174,20 +161,27 @@ export default function TasksWrapper() {
     }
   }
 
+  const setCurrentDateQuickPick = (date) => {
+    handleDateChange(date)
+
+    fetchTasks(date)
+  } 
+
   return (
     <div>
       <Grid container spacing={3}>
         <Grid item xs={2}>
           <Button
             variant="contained"
-            color="secondary"
+            color="primary"
+            text="white"
             className={classes.button}
             startIcon={<AddCircleOutlineIcon />}
             onClick={() => { setShouldOpenCreateModal(true) }}
           >Add</Button>
         </Grid>
         <Grid item xs={2}></Grid>
-        <Grid item xs={6} id='date_section'>
+        <Grid item xs={6} id='date_section' style={{ borderRight: '1px solid #e4e4e4' }}>
           <Grid container spacing={2} alignItems="center" direction="row" justify="flex-end">
             <Grid item xs={3}>
               <Button
@@ -209,13 +203,17 @@ export default function TasksWrapper() {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={2} style={{ textAlign: 'right' }}>
-          <Button
-            variant="contained"
-            className={classes.button}
-          >
-            {<TodayIcon/>}
-          </Button>
+        <Grid item xs={2} style={{ textAlign: 'right', borderLeft: '1px solid #e4e4e4' }}>
+          <MuiPickersUtilsProvider utils={DateFnsUtils} >
+            <DatePicker
+              variant="inline"
+              value={currentDate}
+              onChange={date => setCurrentDateQuickPick(date)}
+              inputVariant="outlined"
+              label="Quick Date Pick"
+              showTodayButton
+            />
+            </MuiPickersUtilsProvider>
         </Grid>
       </Grid>
       <Dialog open={shouldOpenCreateModal} 
@@ -237,7 +235,6 @@ export default function TasksWrapper() {
             <DatePicker
               value={currentDate}
               disablePast
-              // onChange={(e) => { setSelectedDate(e.target.value) }}
               onChange={handleDateChange}
               label="Finish before"
               showTodayButton
