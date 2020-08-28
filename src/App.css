@@ -40,3 +40,8 @@
 #date_section .MuiButton-startIcon {
   margin-right: 0!important;
 }
+
+#central_date_picker:hover {
+  color: #48d8fd;
+  cursor: pointer;
+}

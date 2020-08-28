@@ -54,6 +54,7 @@ export default function TasksWrapper() {
     new Date(today.setHours(23, 59, 59, 999))
   );
   const [selectedDate, setSelectedDate] = useState(currentDate);
+  const [completionPercentage, setCompletionPercentage] = useState(0)
 
   const fetchTasks = (date = null) => {
     date = date ? date : new Date();
@@ -67,7 +68,9 @@ export default function TasksWrapper() {
         },
       })
       .then((res) => {
-        setTasks(res.data);
+        setTasks(res.data.tasks)
+        console.log(res.data)
+        setCompletionPercentage(res.data.completion_percentage)
       })
       .catch((err) => {
         console.log(err);
@@ -187,9 +190,25 @@ export default function TasksWrapper() {
          })
   }
 
+  const determineTaskCompletionColor = () => {
+    if (!completionPercentage) return '#cc0000'
+
+    if (completionPercentage < 25) {
+      return '#cc0000'
+    } else if (completionPercentage <= 50) {
+      return '#cc6500'
+    } else if (completionPercentage < 75) {
+      return '#CBCC00'
+    } else if (completionPercentage < 90) {
+      return '#7fcc00'
+    }
+
+    return '#33cc00'
+  }
+
   return (
     <div>
-      <Grid container spacing={3}>
+      <Grid container spacing={3} justify="space-between" alignItems="center">
         <Grid item xs={2}>
           <Button
             variant="contained"
@@ -204,9 +223,12 @@ export default function TasksWrapper() {
             Add
           </Button>
         </Grid>
+        <Grid item xs={2} style={{ fontSize: '35px', color: determineTaskCompletionColor() }}>
+          <span>{completionPercentage != null ? `${completionPercentage}%` : ''}</span>
+        </Grid>
         <Grid
           item
-          xs={10}
+          xs={4}
           id="date_section"
         >
             <Grid container spacing={2}>
@@ -220,7 +242,7 @@ export default function TasksWrapper() {
                 </IconButton>
               </Grid>
               <Grid item>
-                <div style={{ display: 'inline-block', textAlign: 'center', position: 'relative', width: '120px' }}>
+                <div style={{ display: 'inline-block', textAlign: 'center', position: 'relative', width: '140px' }}>
                   <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <DatePicker
                       autoOk
@@ -233,6 +255,7 @@ export default function TasksWrapper() {
                       }}
                       inputProps={{ style: { textAlign: 'center' } }}
                       labelFunc={(date) => { return date.toDateString() }}
+                      id="central_date_picker"
                     />
                   </MuiPickersUtilsProvider>
                   <span>
@@ -248,24 +271,6 @@ export default function TasksWrapper() {
                   }}>
                   <ChevronRightIcon color="primary" />
                 </IconButton>
-              </Grid>
-              {/* <Divider orientation="vertical" flexItem />
-              <Grid item style={{ width: '160px' }}>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                  <DatePicker
-                    autoOk
-                    variant="inline"
-                    value={currentDate}
-                    onChange={(date) => setCurrentDateQuickPick(date)}
-                    inputVariant="outlined"
-                    label="Quick Date Pick"
-                    showTodayButton
-                  />
-                </MuiPickersUtilsProvider>
-              </Grid> */}
-              <Divider orientation="vertical" flexItem />
-              <Grid item>
-                
               </Grid>
             </Grid>
         </Grid>
@@ -294,7 +299,7 @@ export default function TasksWrapper() {
               value={selectedDate}
               disablePast
               onChange={(date) => setSelectedDate(date)}
-              label="Finish before"
+              label="Day"
               showTodayButton
               style={{ marginTop: "35px", marginBottom: "4px" }}
             />
