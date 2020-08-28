@@ -16,7 +16,8 @@ export default function TaskItem(props) {
 
   return (
     <div id="divid">
-      <span className={`${classes.task} ${props.task.is_completed ? classes.completed : ''}`}>{props.task.name} ({props.task.description})</span>
+      <span className={`${classes.task} ${props.task.is_completed ? classes.completed : ''}`}>
+        <strong>{props.task.name}</strong> <i>{props.task.description ? `(${props.task.description})` : ''}</i></span>
     </div>
   )
 }

@@ -18,11 +18,12 @@ import TaskItem from "./TaskItem";
 import Grid from "@material-ui/core/Grid";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
-import { isYesterday, isTomorrow } from "date-fns";
+import { isYesterday, isTomorrow, isPast } from "date-fns";
 import TodayIcon from "@material-ui/icons/Today";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -141,10 +142,6 @@ export default function TasksWrapper() {
     );
   };
 
-  const isInThePast = (date) => {
-    return date < new Date();
-  };
-
   const differenceInDays = (date) => {
     const today = new Date();
     const diffTime = today - date;
@@ -175,6 +172,20 @@ export default function TasksWrapper() {
     fetchTasks(date);
   };
 
+  const deleteTask = (id) => {
+    axios.delete(`http://localhost:3001/tasks/${id}`, {
+            headers: {
+              Authorization: `Basic ${localStorage.getItem("token")}`,
+            },
+          })
+         .then(res => {
+          fetchTasks(currentDate)
+         })
+         .catch(err => {
+          console.log(err)
+         })
+  }
+
   return (
     <div>
       <Grid container spacing={3}>
@@ -192,66 +203,58 @@ export default function TasksWrapper() {
             Add
           </Button>
         </Grid>
-        <Grid item xs={2}></Grid>
         <Grid
           item
-          xs={6}
+          xs={10}
           id="date_section"
-          style={{ borderRight: "1px solid #e4e4e4" }}
         >
-          <Grid
-            container
-            spacing={2}
-            alignItems="center"
-            direction="row"
-            justify="flex-end"
-          >
-            <Grid item xs={3}>
-              <Button
-                variant="contained"
-                className={`${classes.calendarButton} ${classes.button}`}
-                startIcon={<ChevronLeftIcon />}
-                onClick={() => {
-                  handleCurrentDateChange(-1);
-                }}
-              />
+            <Grid container spacing={2}>
+              <Grid item>
+                <IconButton 
+                  className={`${classes.calendarButton} ${classes.button}`}
+                  onClick={() => {
+                    handleCurrentDateChange(-1);
+                  }}>
+                  <ChevronLeftIcon color="primary" />
+                </IconButton>
+                <div style={{ display: 'inline-block', textAlign: 'center', position: 'relative', width: '120px' }}>
+                  <div style={{ position: 'absolute', width: '120px', top: '-25px' }}>
+                    <span style={{ fontSize: "15px" }}>
+                      {currentDate.toDateString()}
+                    </span>
+                    <br />
+                    <span>
+                      <i>{getDayDescription(currentDate)}</i>
+                    </span>
+                  </div>
+                </div>
+                <IconButton 
+                  className={`${classes.calendarButton} ${classes.button}`}
+                  onClick={() => {
+                    handleCurrentDateChange(1);
+                  }}>
+                  <ChevronRightIcon color="primary" />
+                </IconButton>
+              </Grid>
+              <Divider orientation="vertical" flexItem />
+              <Grid item style={{ width: '160px' }}>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <DatePicker
+                    autoOk
+                    variant="inline"
+                    value={currentDate}
+                    onChange={(date) => setCurrentDateQuickPick(date)}
+                    inputVariant="outlined"
+                    label="Quick Date Pick"
+                    showTodayButton
+                  />
+                </MuiPickersUtilsProvider>
+              </Grid>
+              <Divider orientation="vertical" flexItem />
+              <Grid item>
+                
+              </Grid>
             </Grid>
-            <Grid item xs={4} style={{ textAlign: "center" }}>
-              <span style={{ fontSize: "18px" }}>
-                {currentDate.toDateString()}
-              </span>
-              <br />
-              <span>
-                <i>{getDayDescription(currentDate)}</i>
-              </span>
-            </Grid>
-            <Grid item xs={3} style={{ textAlign: "right" }}>
-              <Button
-                variant="contained"
-                className={`${classes.calendarButton} ${classes.button}`}
-                startIcon={<ChevronRightIcon styles={{ marginRight: 0 }} />}
-                onClick={() => {
-                  handleCurrentDateChange(1);
-                }}
-              />
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid
-          item
-          xs={2}
-          style={{ textAlign: "right", borderLeft: "1px solid #e4e4e4" }}
-        >
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <DatePicker
-              variant="inline"
-              value={currentDate}
-              onChange={(date) => setCurrentDateQuickPick(date)}
-              inputVariant="outlined"
-              label="Quick Date Pick"
-              showTodayButton
-            />
-          </MuiPickersUtilsProvider>
         </Grid>
       </Grid>
       <Dialog
@@ -316,7 +319,9 @@ export default function TasksWrapper() {
               onClick={() => {
                 toggleTaskCompleted(task);
               }}
-            >
+              style={{ background: `${task.is_completed ? '#e0fee0' : ''}` }}
+              disabled={isPast(currentDate) ? true : false}
+            > 
               <Grid
                 container
                 direction="row"
@@ -338,6 +343,7 @@ export default function TasksWrapper() {
                           tabIndex={-1}
                           disableRipple
                           inputProps={{ "aria-labelledby": labelId }}
+                          style={{ color: `${task.is_completed ? '#43a047' : ''}` }}
                         />
                       </ListItemIcon>
                     </Grid>
@@ -354,6 +360,7 @@ export default function TasksWrapper() {
                     aria-label="delete"
                     color="secondary"
                     className={classes.margin}
+                    onClick={() => deleteTask(task.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
