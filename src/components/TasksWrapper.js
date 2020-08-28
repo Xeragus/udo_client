@@ -24,6 +24,7 @@ import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import Divider from '@material-ui/core/Divider';
+import format from "date-fns/format";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -217,17 +218,29 @@ export default function TasksWrapper() {
                   }}>
                   <ChevronLeftIcon color="primary" />
                 </IconButton>
+              </Grid>
+              <Grid item>
                 <div style={{ display: 'inline-block', textAlign: 'center', position: 'relative', width: '120px' }}>
-                  <div style={{ position: 'absolute', width: '120px', top: '-25px' }}>
-                    <span style={{ fontSize: "15px" }}>
-                      {currentDate.toDateString()}
-                    </span>
-                    <br />
-                    <span>
-                      <i>{getDayDescription(currentDate)}</i>
-                    </span>
-                  </div>
+                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                    <DatePicker
+                      autoOk
+                      value={currentDate}
+                      onChange={(date) => setCurrentDateQuickPick(date)}
+                      showTodayButton
+                      format="E MMM d Y"
+                      InputProps={{
+                        disableUnderline: true
+                      }}
+                      inputProps={{ style: { textAlign: 'center' } }}
+                      labelFunc={(date) => { return date.toDateString() }}
+                    />
+                  </MuiPickersUtilsProvider>
+                  <span>
+                    <i>{getDayDescription(currentDate)}</i>
+                  </span>
                 </div>
+              </Grid>
+              <Grid item>
                 <IconButton 
                   className={`${classes.calendarButton} ${classes.button}`}
                   onClick={() => {
@@ -236,7 +249,7 @@ export default function TasksWrapper() {
                   <ChevronRightIcon color="primary" />
                 </IconButton>
               </Grid>
-              <Divider orientation="vertical" flexItem />
+              {/* <Divider orientation="vertical" flexItem />
               <Grid item style={{ width: '160px' }}>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <DatePicker
@@ -249,7 +262,7 @@ export default function TasksWrapper() {
                     showTodayButton
                   />
                 </MuiPickersUtilsProvider>
-              </Grid>
+              </Grid> */}
               <Divider orientation="vertical" flexItem />
               <Grid item>
                 
