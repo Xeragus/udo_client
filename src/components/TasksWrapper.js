@@ -115,9 +115,9 @@ export default function TasksWrapper() {
       .put(
         `http://localhost:3001/tasks/${updatingTask.id}`,
         {
-          name,
-          deadline: selectedDate,
-          description,
+          name: updateName,
+          deadline: updateCurrentDate,
+          description: updateDescription,
         },
         {
           headers: {
@@ -396,14 +396,14 @@ export default function TasksWrapper() {
             required
             value={updateName}
             onChange={(e) => {
-              setName(e.target.value)
+              setUpdateName(e.target.value)
             }}
           />
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <DatePicker
-              value={selectedDate}
+              value={new Date(updateCurrentDate)}
               disablePast
-              onChange={(date) => setSelectedDate(date)}
+              onChange={(date) => setUpdateCurrentDate(date)}
               label="Day"
               showTodayButton
               style={{ marginTop: "35px", marginBottom: "4px" }}
@@ -419,7 +419,7 @@ export default function TasksWrapper() {
             multiline
             rows="2"
             onChange={(e) => {
-              setDescription(e.target.value)
+              setUpdateDescription(e.target.value)
             }}
           />
         </DialogContent>
