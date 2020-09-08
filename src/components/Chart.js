@@ -1,33 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '@material-ui/core/styles';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer } from 'recharts';
+import axios from 'axios'
 
 // Generate Sales Data
 function createData(time, amount) {
   return { time, amount };
 }
 
-const data = [
-  createData('00:00', 0),
-  createData('03:00', 300),
-  createData('06:00', 600),
-  createData('09:00', 800),
-  createData('12:00', 1500),
-  createData('15:00', 2000),
-  createData('18:00', 2400),
-  createData('21:00', 2400),
-  createData('24:00', undefined),
-];
-
 export default function Chart() {
   const theme = useTheme();
+  const [last30DaysTaskCompletionData, setLast30DaysTaskCompletionData] = useState([])
+
+  const fetchLast30DaysTaskCompletionData = () => {
+    axios
+      .get("http://localhost:3001/task-completion-data", {
+        params: {
+          number_of_days: 25,
+        },
+        headers: {
+          Authorization: `Basic ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        console.log(res.data)
+        let data = []
+        res.data.forEach(dataItem => {
+          let date = new Date(dataItem.date)
+          data.push(createData(date.toUTCString().slice(0, 16), dataItem.completion_percentage))
+        })
+
+        setLast30DaysTaskCompletionData(data)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
+
+  useEffect(() => {
+    fetchLast30DaysTaskCompletionData()
+  }, [])
 
   return (
     <React.Fragment>
-      <div>Today</div>
+      <div>Task Completion: Last 30 Days</div>
       <ResponsiveContainer>
         <LineChart
-          data={data}
+          data={last30DaysTaskCompletionData}
           margin={{
             top: 16,
             right: 16,
@@ -42,7 +61,7 @@ export default function Chart() {
               position="left"
               style={{ textAnchor: 'middle', fill: theme.palette.text.primary }}
             >
-              Sales ($)
+              Completed (%)
             </Label>
           </YAxis>
           <Line type="monotone" dataKey="amount" stroke={theme.palette.primary.main} dot={false} />

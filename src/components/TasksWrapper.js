@@ -18,7 +18,7 @@ import TaskItem from "./TaskItem"
 import Grid from "@material-ui/core/Grid"
 import ChevronRightIcon from "@material-ui/icons/ChevronRight"
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
-import { isYesterday, isTomorrow, isPast } from "date-fns"
+import { isYesterday, isTomorrow, isBefore, getDayOfYear } from "date-fns"
 import IconButton from "@material-ui/core/IconButton"
 import DeleteIcon from "@material-ui/icons/Delete"
 import EditIcon from "@material-ui/icons/Edit"
@@ -50,16 +50,13 @@ export default function TasksWrapper() {
   const [shouldOpenCreateModal, setShouldOpenCreateModal] = useState(false)
   const [shouldOpenUpdateModal, setShouldOpenUpdateModal] = useState(false)
   const [updatingTask, setUpdatingTask] = useState(null)
-  const today = new Date()
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [updateName, setUpdateName] = useState("")
-  const [updateDescription, setUpdateDescription] = useState("")
-  const [updateCurrentDate, setUpdateCurrentDate] = useState(null)
+  const [updateDescription, setUpdateDescription] = useState('')
+  const [updateCurrentDate, setUpdateCurrentDate] = useState(new Date())
   const [tasks, setTasks] = useState([])
-  const [currentDate, handleDateChange] = useState(
-    new Date(today.setHours(23, 59, 59, 999))
-  )
+  const [currentDate, handleDateChange] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(currentDate)
   const [completionPercentage, setCompletionPercentage] = useState(null)
 
@@ -139,11 +136,11 @@ export default function TasksWrapper() {
   const handleSetUpdatingTask = (task, e) => {
     e.cancelBubble = true;
     if(e.stopPropagation) e.stopPropagation();  
-    setShouldOpenUpdateModal(true)
     setUpdatingTask(task)
     setUpdateName(task.name)
     setUpdateDescription(task.description)
     setUpdateCurrentDate(task.deadline)
+    setShouldOpenUpdateModal(true)
   }
 
   const handleTaskCreateModalClose = () => {
@@ -183,6 +180,10 @@ export default function TasksWrapper() {
   }
 
   useEffect(fetchTasks, [])
+
+  const isPast = (date) => {
+    return getDayOfYear(date) < getDayOfYear(new Date())
+  }
 
   const isToday = (date) => {
     const today = new Date()
@@ -401,7 +402,7 @@ export default function TasksWrapper() {
           />
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <DatePicker
-              value={new Date(updateCurrentDate)}
+              value={currentDate}
               disablePast
               onChange={(date) => setUpdateCurrentDate(date)}
               label="Day"
