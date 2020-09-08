@@ -22,6 +22,7 @@ import format from "date-fns/format";
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from '@material-ui/core/ListItemText';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -79,6 +80,7 @@ export default function GoalsWrapper() {
   const [target, setTarget] = useState(1);
   const [name, setName] = useState("");
   const [startFrom, setStartFrom] = useState(0);
+  const [goalsFetched, setGoalsFetched] = useState(false)
 
   const handleSubmit = () => {
     axios
@@ -104,6 +106,17 @@ export default function GoalsWrapper() {
         console.log(err);
       });
   };
+
+  // if (!goalsFetched) {
+  //   return (
+  //     <div style={{ margin: '-12px' }}>
+  //       <Skeleton variant="rect" width={976} height={76} />
+  //       <Skeleton />
+  //       <Skeleton />
+  //       <Skeleton />
+  //     </div>
+  //   )
+  // }
 
   return (
     <div>
@@ -274,6 +287,7 @@ export default function GoalsWrapper() {
               dense
               button
               // onClick={handleToggle(value)}
+              style={{ marginBottom: '10px' }}
             >
               <ListItemText id={labelId} primary={`Line item ${value + 1}`} />
             </ListItem>

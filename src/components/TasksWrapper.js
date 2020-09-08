@@ -27,6 +27,7 @@ import SentimentDissatisfiedIcon from '@material-ui/icons/SentimentDissatisfied'
 import SentimentSatisfiedIcon from '@material-ui/icons/SentimentSatisfied'
 import SentimentSatisfiedAltIcon from '@material-ui/icons/SentimentSatisfiedAlt'
 import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied'
+import Skeleton from '@material-ui/lab/Skeleton';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -59,6 +60,7 @@ export default function TasksWrapper() {
   const [currentDate, handleDateChange] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(currentDate)
   const [completionPercentage, setCompletionPercentage] = useState(null)
+  const [tasksFetched, setTasksFetched] = useState(false)
 
   const fetchTasks = (date = null) => {
     date = date ? date : new Date()
@@ -75,6 +77,7 @@ export default function TasksWrapper() {
         setTasks(res.data.tasks)
         console.log(res.data)
         setCompletionPercentage(res.data.completion_percentage)
+        setTasksFetched(true)
       })
       .catch((err) => {
         console.log(err)
@@ -252,6 +255,17 @@ export default function TasksWrapper() {
     }
 
     return ['#33cc00', <SentimentVerySatisfiedIcon style={{ fontSize: "50px" }}/>, "rgba(51, 204, 0, 0.1)"]
+  }
+
+  if (!tasksFetched) {
+    return (
+      <div style={{ margin: '-12px' }}>
+        <Skeleton variant="rect" width={976} height={76} />
+        <Skeleton />
+        <Skeleton />
+        <Skeleton />
+      </div>
+    )
   }
 
   return (
