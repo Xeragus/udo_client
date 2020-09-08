@@ -7,7 +7,7 @@ import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
 import DialogContent from "@material-ui/core/DialogContent"
 import DialogTitle from "@material-ui/core/DialogTitle"
-import DateFnsUtils from "@date-io/date-fns" // choose your lib
+import DateFnsUtils from "@date-io/date-fns"
 import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers"
 import axios from "axios"
 import Checkbox from "@material-ui/core/Checkbox"
@@ -441,7 +441,6 @@ export default function TasksWrapper() {
               role={undefined}
               dense
               button
-              style={{ background: `${task.is_completed ? '#e0fee0' : ''}` }}
               disabled={isPast(currentDate) ? true : false}
               onClick={() => {
                 toggleTaskCompleted(task)
