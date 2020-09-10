@@ -75,7 +75,6 @@ export default function TasksWrapper() {
       })
       .then((res) => {
         setTasks(res.data.tasks)
-        console.log(res.data)
         setCompletionPercentage(res.data.completion_percentage)
         setTasksFetched(true)
       })
@@ -270,8 +269,7 @@ export default function TasksWrapper() {
 
   return (
     <div>
-      <Grid container spacing={3} justify="space-between" alignItems="center" 
-            style={{ background: `${completionPercentage != null ? determineTaskCompletionSentiment()[2] : ''}`}}>
+      <Grid container spacing={3} justify="space-between" alignItems="center">
         <Grid item xs={4}>
           <Button
             variant="contained"

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '@material-ui/core/styles';
-import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer, Tooltip } from 'recharts';
 import axios from 'axios'
 import Slider from '@material-ui/core/Slider';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 function createData(time, amount) {
   return { time, amount };
@@ -12,6 +13,7 @@ export default function Chart() {
   const theme = useTheme();
   const [lastXDaysTaskCompletionData, setLastXDaysTaskCompletionData] = useState([])
   const [numberOfDays, setNumberOfDays] = useState(7)
+  const [lastXDaysFetched, setLastXDaysFetched] = useState(false)
 
   const fetchLastXDaysTaskCompletionData = (numberOfDays) => {
     axios
@@ -32,6 +34,7 @@ export default function Chart() {
 
         setNumberOfDays(numberOfDays)
         setLastXDaysTaskCompletionData(data)
+        setLastXDaysFetched(true)
       })
       .catch((err) => {
         console.log(err)
@@ -64,6 +67,22 @@ export default function Chart() {
       label: '180',
     },
   ];
+
+  if (!lastXDaysFetched) {
+    return (
+      <div style={{ margin: '-12px' }}>
+        <Skeleton  width={976} height={38} />
+        <Skeleton  width={976} height={38} />
+        <Skeleton  width={976} height={38} />
+        <Skeleton  width={976} height={38} />
+        <Skeleton  width={976} height={38} />
+        <Skeleton  width={976} height={38} />
+        <Skeleton  width={976} height={38} />
+        <Skeleton  width={976} height={38} />
+        <Skeleton  width={976} height={38} />
+      </div>
+    ) 
+  }
 
   return (
     <React.Fragment>
@@ -98,7 +117,8 @@ export default function Chart() {
               Completed (%)
             </Label>
           </YAxis>
-          <Line type="monotone" dataKey="amount" stroke={theme.palette.primary.main} dot={false} />
+          <Tooltip />
+          <Line type="monotone" dataKey="amount" name="Completed %" stroke={theme.palette.primary.main} dot={false} />
         </LineChart>
       </ResponsiveContainer>
     </React.Fragment>

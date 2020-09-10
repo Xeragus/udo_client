@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "@material-ui/core/Button";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
 import { makeStyles } from "@material-ui/core/styles";
@@ -19,10 +19,17 @@ import clsx from "clsx";
 import Input from "@material-ui/core/Input";
 import axios from "axios";
 import format from "date-fns/format";
-import List from "@material-ui/core/List"
-import ListItem from "@material-ui/core/ListItem"
-import ListItemText from '@material-ui/core/ListItemText';
-import Skeleton from '@material-ui/lab/Skeleton';
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import Skeleton from "@material-ui/lab/Skeleton";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import {
+  differenceInCalendarDays,
+  isToday,
+  isYesterday,
+  isTomorrow,
+  isPast
+} from "date-fns";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -73,6 +80,7 @@ class LocalizedUtils extends DateFnsUtils {
 export default function GoalsWrapper() {
   const classes = useStyles();
   const [shouldOpenCreateModal, setShouldOpenCreateModal] = useState(false);
+  const [shouldOpenUpdateModal, setShouldOpenUpdateModal] = useState(false);
   const [measuredIn, setMeasuredIn] = useState("hours");
   const [currentProgress, setCurrentProgress] = useState(0);
   const [currentDate, handleDateChange] = useState(new Date());
@@ -80,7 +88,13 @@ export default function GoalsWrapper() {
   const [target, setTarget] = useState(1);
   const [name, setName] = useState("");
   const [startFrom, setStartFrom] = useState(0);
-  const [goalsFetched, setGoalsFetched] = useState(false)
+  const [goalsFetched, setGoalsFetched] = useState(false);
+  const [goals, setGoals] = useState([]);
+  const [updateName, setUpdateName] = useState("");
+  const [updateTarget, setUpdateTarget] = useState("");
+  const [updatingGoal, setUpdatingGoal] = useState(null);
+  const [updateMeasuredIn, setUpdateMeasuredIn] = useState("");
+  const [addProgress, setAddProgress] = useState(1)
 
   const handleSubmit = () => {
     axios
@@ -101,22 +115,91 @@ export default function GoalsWrapper() {
       )
       .then((res) => {
         setShouldOpenCreateModal(false);
+        fetchGoals();
       })
       .catch((err) => {
         console.log(err);
       });
   };
 
-  // if (!goalsFetched) {
-  //   return (
-  //     <div style={{ margin: '-12px' }}>
-  //       <Skeleton variant="rect" width={976} height={76} />
-  //       <Skeleton />
-  //       <Skeleton />
-  //       <Skeleton />
-  //     </div>
-  //   )
-  // }
+  const handleUpdate = (updatingGoal) => {
+    axios
+      .post(
+        `http://localhost:3001/goals/${updatingGoal.id}`,
+        {
+          name,
+          measured_in: measuredIn,
+          start_from: startFrom,
+          target,
+          deadline: selectedDate,
+        },
+        {
+          headers: {
+            Authorization: `Basic ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+      .then((res) => {
+        setShouldOpenUpdateModal(false);
+        fetchGoals();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const fetchGoals = () => {
+    axios
+      .get("http://localhost:3001/goals", {
+        headers: {
+          Authorization: `Basic ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        setGoals(res.data.goals);
+        console.log(res.data);
+        setGoalsFetched(true);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const calculateDifferenceInDays = (date) => {
+    if (isToday(date)) return "today";
+    else if (isYesterday(date)) return "yesterday";
+    else if (isTomorrow(date)) return "tomorrow";
+    else if (differenceInCalendarDays(date, new Date()) > 0)
+      return `in ${Math.abs(differenceInCalendarDays(new Date(), date))} days`;
+    else
+      return `${Math.abs(differenceInCalendarDays(date, new Date()))} days ago`;
+  };
+
+  const calculateCompletionPercentage = (goal) => {
+    return ((goal.current_progress * 100) / goal.target).toFixed(0);
+  };
+
+  const handleSelectUpdateGoal = (goal) => {
+    setUpdatingGoal(goal);
+    setUpdateName(goal.name);
+    setUpdateTarget(goal.target);
+    console.log(goal.measured_in);
+    setUpdateMeasuredIn(goal.measured_in);
+    setShouldOpenUpdateModal(true);
+  };
+
+  useEffect(fetchGoals, []);
+
+  if (!goalsFetched) {
+    return (
+      <div style={{ margin: "-12px" }}>
+        <Skeleton variant="rect" width={976} height={76} />
+        <Skeleton />
+        <Skeleton />
+        <Skeleton />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -251,13 +334,14 @@ export default function GoalsWrapper() {
             <Grid item xs={3}>
               <MuiPickersUtilsProvider utils={LocalizedUtils}>
                 <DateTimePicker
+                  autoOk
                   value={selectedDate}
-                  disablePast
                   onChange={(date) => setSelectedDate(date)}
                   label="Complete By"
                   showTodayButton
                   style={{ marginTop: "35px" }}
                   format="d MMM HH:mm"
+                  ampm={false}
                 />
               </MuiPickersUtilsProvider>
             </Grid>
@@ -276,20 +360,205 @@ export default function GoalsWrapper() {
           </Button>
         </DialogActions>
       </Dialog>
+      <Dialog open={shouldOpenUpdateModal} aria-labelledby="form-dialog-title">
+        <DialogTitle id="form-dialog-title">Update goal</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="What is your goal?"
+            type="text"
+            fullWidth
+            required
+            value={updateName}
+            onChange={(e) => {
+              setUpdateName(e.target.value);
+            }}
+          />
+          <Grid
+            container
+            spacing={3}
+            style={{ marginTop: "10px" }}
+            alignItems="flex-end"
+          >
+            <Grid item xs={3}>
+              <FormControl
+                className={clsx(
+                  classes.margin,
+                  classes.withoutLabel,
+                  classes.textField
+                )}
+              >
+                <InputLabel id="standard-adornment-weight-3">
+                  Add Progress
+                </InputLabel>
+                <Input
+                  id="standard-adornment-weight-3"
+                  value={addProgress}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      {measuredInOptions[updateMeasuredIn]}
+                    </InputAdornment>
+                  }
+                  aria-describedby="standard-weight-helper-text"
+                  inputProps={{
+                    "aria-label": "weight",
+                  }}
+                  required={true}
+                  onChange={(e) => {
+                    setAddProgress(e.target.value);
+                  }}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={3}>
+              <FormControl className={classes.formControl}>
+                <InputLabel id="demo-simple-select-label">
+                  Measured in
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={updateMeasuredIn}
+                  onChange={(e) => {
+                    setUpdateMeasuredIn(e.target.value);
+                  }}
+                >
+                  <MenuItem value="hours">Hours</MenuItem>
+                  <MenuItem value="steps">Steps</MenuItem>
+                  <MenuItem value="items">Items</MenuItem>
+                  <MenuItem value="percentage">Percents</MenuItem>
+                  <MenuItem value="dollars">Dollars</MenuItem>
+                  <MenuItem value="euros">Euros</MenuItem>
+                  <MenuItem value="times">Times</MenuItem>
+                  <MenuItem value="weeks">Weeks</MenuItem>
+                  <MenuItem value="days">Days</MenuItem>
+                  <MenuItem value="lbs">Lbs</MenuItem>
+                  <MenuItem value="kgs">Kgs</MenuItem>
+                  <MenuItem value="miles">Miles</MenuItem>
+                  <MenuItem value="kms">Km</MenuItem>
+                  <MenuItem value="books">Books</MenuItem>
+                  <MenuItem value="chapters">Chapters</MenuItem>
+                  <MenuItem value="pages">Pages</MenuItem>
+                  <MenuItem value="words">Words</MenuItem>
+                  <MenuItem value="courses">Courses</MenuItem>
+                  <MenuItem value="sessions">Sessions</MenuItem>
+                  <MenuItem value="classes">Classes</MenuItem>
+                  <MenuItem value="videos">Videos</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={3}>
+              <FormControl
+                className={clsx(
+                  classes.margin,
+                  classes.withoutLabel,
+                  classes.textField
+                )}
+              >
+                <InputLabel id="standard-adornment-weight-2">Target</InputLabel>
+                <Input
+                  id="standard-adornment-weight-2"
+                  value={updateTarget}
+                  onChange={(e) => {
+                    setUpdateTarget(e.target.value);
+                  }}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      {measuredInOptions[updateMeasuredIn]}
+                    </InputAdornment>
+                  }
+                  aria-describedby="standard-weight-helper-text"
+                  inputProps={{
+                    "aria-label": "weight",
+                  }}
+                  required={true}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={3}>
+              <MuiPickersUtilsProvider utils={LocalizedUtils}>
+                <DateTimePicker
+                  autoOk
+                  value={selectedDate}
+                  onChange={(date) => setSelectedDate(date)}
+                  label="Complete By"
+                  showTodayButton
+                  style={{ marginTop: "35px" }}
+                  format="d MMM HH:mm"
+                  ampm={false}
+                />
+              </MuiPickersUtilsProvider>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setShouldOpenUpdateModal(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} color="primary">
+            Update
+          </Button>
+        </DialogActions>
+      </Dialog>
       <List className={classes.root} style={{ paddingTop: "15px" }}>
-        {[0, 1, 2, 3].map((value) => {
-          const labelId = `checkbox-list-label-${value}`;
+        {goals.map((goal) => {
+          const labelId = `checkbox-list-label-${goal.id}`;
 
           return (
             <ListItem
-              key={value}
+              key={goal.id}
               role={undefined}
               dense
               button
-              // onClick={handleToggle(value)}
-              style={{ marginBottom: '10px' }}
+              onClick={() => {
+                handleSelectUpdateGoal(goal);
+              }}
+              style={{
+                marginBottom: "10px",
+                borderRadius: "3px",
+                border: "1px solid #cccccc",
+              }}
+              disabled={isPast(new Date(goal.deadline)) ? true : false}
             >
-              <ListItemText id={labelId} primary={`Line item ${value + 1}`} />
+              <div
+                style={{
+                  width: "100%",
+                  paddingTop: "15px",
+                  paddingBottom: "15px",
+                }}
+              >
+                <div style={{ paddingBottom: "10px" }}>
+                  <span style={{ fontSize: "17px" }} id={labelId}>
+                    <strong>{goal.name}</strong> &middot; {" "}
+                    {goal.current_progress}/{goal.target}{" "}
+                    {measuredInOptions[goal.measured_in]} (<strong>{calculateCompletionPercentage(goal)}%</strong>) &middot;
+                    <i>
+                      {" "}
+                      due on{" "}
+                      <strong>{new Date(goal.deadline)
+                        .toUTCString()
+                        .slice(0, -3)} ({calculateDifferenceInDays(new Date(goal.deadline))})</strong>
+                    </i>
+                  </span>
+                </div>
+                <div>
+                  <LinearProgress
+                    variant="determinate"
+                    value={calculateCompletionPercentage(goal)}
+                    style={{
+                      width: "100%",
+                      height: "8px",
+                      borderRadius: "3px",
+                    }}
+                  />
+                </div>
+              </div>
             </ListItem>
           );
         })}
