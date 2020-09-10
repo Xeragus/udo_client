@@ -269,8 +269,8 @@ export default function TasksWrapper() {
 
   return (
     <div>
-      <Grid container spacing={3} justify="space-between" alignItems="center">
-        <Grid item xs={4}>
+      <Grid container spacing={3} justify="space-end" alignItems="center">
+        <Grid item xs={2}>
           <Button
             variant="contained"
             color="primary"
@@ -284,7 +284,7 @@ export default function TasksWrapper() {
             Add
           </Button>
         </Grid>
-        <Grid item xs={4} style={{ color: determineTaskCompletionSentiment()[0], position: 'relative' }}>
+        <Grid item xs={2} style={{ color: determineTaskCompletionSentiment()[0], position: 'relative' }}>
           <div style={{ display: 'inline-block', position: 'absolute', top: '11px'}}>
             {completionPercentage != null ? determineTaskCompletionSentiment()[1] : ''}
           </div>
@@ -296,10 +296,10 @@ export default function TasksWrapper() {
         </Grid>
         <Grid
           item
-          xs={4}
+          xs={8}
           id="date_section"
         >
-            <Grid container spacing={2}>
+            <Grid container spacing={2} justify="flex-end">
               <Grid item>
                 <IconButton 
                   className={`${classes.calendarButton} ${classes.button}`}

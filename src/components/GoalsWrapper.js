@@ -95,6 +95,7 @@ export default function GoalsWrapper() {
   const [updatingGoal, setUpdatingGoal] = useState(null);
   const [updateMeasuredIn, setUpdateMeasuredIn] = useState("");
   const [addProgress, setAddProgress] = useState(1)
+  const [updateDate, setUpdateDate] = useState(null)
 
   const handleSubmit = () => {
     axios
@@ -105,7 +106,7 @@ export default function GoalsWrapper() {
           measured_in: measuredIn,
           start_from: startFrom,
           target,
-          deadline: selectedDate,
+          deadline: new Date(selectedDate),
         },
         {
           headers: {
@@ -122,16 +123,15 @@ export default function GoalsWrapper() {
       });
   };
 
-  const handleUpdate = (updatingGoal) => {
+  const handleUpdate = () => {
     axios
-      .post(
+      .patch(
         `http://localhost:3001/goals/${updatingGoal.id}`,
         {
-          name,
-          measured_in: measuredIn,
-          start_from: startFrom,
-          target,
-          deadline: selectedDate,
+          name: updateName,
+          measured_in: updateMeasuredIn,
+          target: updateTarget,
+          deadline: updateDate,
         },
         {
           headers: {
@@ -183,23 +183,25 @@ export default function GoalsWrapper() {
     setUpdatingGoal(goal);
     setUpdateName(goal.name);
     setUpdateTarget(goal.target);
-    console.log(goal.measured_in);
     setUpdateMeasuredIn(goal.measured_in);
     setShouldOpenUpdateModal(true);
+    console.log(goal.deadline)
+    console.log(new Date(goal.deadline))
+    setUpdateDate(new Date(goal.deadline))
   };
 
   useEffect(fetchGoals, []);
 
-  if (!goalsFetched) {
-    return (
-      <div style={{ margin: "-12px" }}>
-        <Skeleton variant="rect" width={976} height={76} />
-        <Skeleton />
-        <Skeleton />
-        <Skeleton />
-      </div>
-    );
-  }
+  // if (!goalsFetched) {
+  //   return (
+  //     <div style={{ margin: "-12px" }}>
+  //       <Skeleton variant="rect" width={976} height={76} />
+  //       <Skeleton />
+  //       <Skeleton />
+  //       <Skeleton />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div>
@@ -481,8 +483,8 @@ export default function GoalsWrapper() {
               <MuiPickersUtilsProvider utils={LocalizedUtils}>
                 <DateTimePicker
                   autoOk
-                  value={selectedDate}
-                  onChange={(date) => setSelectedDate(date)}
+                  value={updateDate}
+                  onChange={(date) => setUpdateDate(date)}
                   label="Complete By"
                   showTodayButton
                   style={{ marginTop: "35px" }}
@@ -539,11 +541,12 @@ export default function GoalsWrapper() {
                     {goal.current_progress}/{goal.target}{" "}
                     {measuredInOptions[goal.measured_in]} (<strong>{calculateCompletionPercentage(goal)}%</strong>) &middot;
                     <i>
-                      {" "}
-                      due on{" "}
-                      <strong>{new Date(goal.deadline)
-                        .toUTCString()
-                        .slice(0, -3)} ({calculateDifferenceInDays(new Date(goal.deadline))})</strong>
+                      &nbsp;
+                      due on&nbsp;
+                      <strong>
+                        {(new Date(goal.deadline)).toString().slice(0, -43)} 
+                        {/* {(new Date(goal.deadline)).to()}  */}
+                        &nbsp;({calculateDifferenceInDays(new Date(goal.deadline))})</strong>
                     </i>
                   </span>
                 </div>
