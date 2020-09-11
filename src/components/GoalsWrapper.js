@@ -34,6 +34,7 @@ import DeleteIcon from "@material-ui/icons/Archive";
 import Tooltip from "@material-ui/core/Tooltip";
 import IconButton from "@material-ui/core/IconButton";
 import { useConfirm } from "material-ui-confirm";
+import FilterListIcon from "@material-ui/icons/FilterList";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -101,6 +102,7 @@ export default function GoalsWrapper() {
   const [addProgress, setAddProgress] = useState(1);
   const [updateDate, setUpdateDate] = useState(null);
   const confirm = useConfirm();
+  const [shouldOpenFilters, setShouldOpenFilters] = useState(false);
 
   const handleSubmit = () => {
     axios
@@ -206,15 +208,14 @@ export default function GoalsWrapper() {
         console.log("ARCHIVED YES");
       })
       .catch(() => {
-        console.log('ARCHIVED NO');
+        console.log("ARCHIVED NO");
       });
   };
 
   const deleteGoal = (e, goal) => {
-    e.stopPropagation()
+    e.stopPropagation();
     confirm({
-      description:
-        "Deleting a goal is a permanent action.",
+      description: "Deleting a goal is a permanent action.",
     })
       .then(() => {
         console.log("ARCHIVED YES");
@@ -222,24 +223,44 @@ export default function GoalsWrapper() {
       .catch(() => {
         console.log("ARCHIVED NO");
       });
-  }
+  };
 
   useEffect(fetchGoals, []);
 
   return (
     <div>
-      <Button
-        variant="contained"
-        color="primary"
-        text="white"
-        className={classes.button}
-        startIcon={<AddCircleOutlineIcon />}
-        onClick={() => {
-          setShouldOpenCreateModal(true);
-        }}
+      <Grid
+        container
+        direction="row"
+        alignItems="center"
+        justify="space-between"
       >
-        Add
-      </Button>
+        <Grid item>
+          <Button
+            variant="contained"
+            color="primary"
+            text="white"
+            className={classes.button}
+            startIcon={<AddCircleOutlineIcon />}
+            onClick={() => {
+              setShouldOpenCreateModal(true);
+            }}
+          >
+            Add
+          </Button>
+        </Grid>
+        <Grid item>
+          <Tooltip title="Filters">
+            <IconButton
+              aria-label="delete"
+              className={classes.margin}
+              onClick={(e) => setShouldOpenFilters(true)}
+            >
+              <FilterListIcon />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+      </Grid>
       <Dialog
         open={shouldOpenCreateModal}
         onClose={() => {
@@ -543,6 +564,28 @@ export default function GoalsWrapper() {
           </Button>
         </DialogActions>
       </Dialog>
+      <Dialog
+        open={shouldOpenUpdateModal}
+        onClose={() => {
+          setShouldOpenUpdateModal(false);
+        }}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">Filter by:</DialogTitle>
+        <DialogContent></DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setShouldOpenFilters(false);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} color="primary">
+            Filter
+          </Button>
+        </DialogActions>
+      </Dialog>
       <List className={classes.root} style={{ paddingTop: "15px" }}>
         {goals.map((goal) => {
           const labelId = `checkbox-list-label-${goal.id}`;
@@ -597,25 +640,25 @@ export default function GoalsWrapper() {
                       </span>
                     </Grid>
                     <Grid item xs={2}>
-                      <IconButton
-                        aria-label="delete"
-                        className={classes.margin}
-                        onClick={(e) => archiveGoal(e, goal)}
-                      >
-                        <Tooltip title="Archive">
+                      <Tooltip title="Archive">
+                        <IconButton
+                          aria-label="delete"
+                          className={classes.margin}
+                          onClick={(e) => archiveGoal(e, goal)}
+                        >
                           <ArchiveIcon style={{ color: "#ffc107" }} />
-                        </Tooltip>
-                      </IconButton>
-                      <IconButton
-                        aria-label="delete"
-                        color="secondary"
-                        className={classes.margin}
-                        onClick={(e) => deleteGoal(e, goal)}
-                      >
-                        <Tooltip title="Delete">
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <IconButton
+                          aria-label="delete"
+                          color="secondary"
+                          className={classes.margin}
+                          onClick={(e) => deleteGoal(e, goal)}
+                        >
                           <DeleteIcon />
-                        </Tooltip>
-                      </IconButton>
+                        </IconButton>
+                      </Tooltip>
                     </Grid>
                   </Grid>
                 </div>

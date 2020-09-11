@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react"
 import Button from "@material-ui/core/Button"
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline"
-import { makeStyles } from "@material-ui/core/styles"
 import TextField from "@material-ui/core/TextField"
 import Dialog from "@material-ui/core/Dialog"
 import DialogActions from "@material-ui/core/DialogActions"
@@ -22,33 +21,16 @@ import { isYesterday, isTomorrow, isBefore, getDayOfYear } from "date-fns"
 import IconButton from "@material-ui/core/IconButton"
 import DeleteIcon from "@material-ui/icons/Delete"
 import EditIcon from "@material-ui/icons/Edit"
-import SentimentVeryDissatisfiedIcon from '@material-ui/icons/SentimentVeryDissatisfied'
-import SentimentDissatisfiedIcon from '@material-ui/icons/SentimentDissatisfied'
-import SentimentSatisfiedIcon from '@material-ui/icons/SentimentSatisfied'
-import SentimentSatisfiedAltIcon from '@material-ui/icons/SentimentSatisfiedAlt'
-import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied'
-import { useConfirm } from "material-ui-confirm";
-import useKeypress from 'react-use-keypress';
+import { useConfirm } from "material-ui-confirm"
+import useKeypress from "react-use-keypress"
+import Tooltip from "@material-ui/core/Tooltip"
+import determineTaskCompletionSentiment from "../util/determine-sentiment"
+import taskWrapperStyler from '../stylers/task-wrapper'
+import authHeader from '../util//auth-header'
+import TaskCreateDialog from '../components/dialogs/TaskCreate'
+import TaskUpdateDialog from '../components/dialogs/TaskUpdate'
 
-const useStyles = makeStyles((theme) => ({
-  button: {
-    margin: theme.spacing(1),
-    color: "#fff",
-  },
-  completed: {
-    textDecoration: "line-through",
-    color: "#808080",
-  },
-  task: {
-    fontSize: "15px",
-  },
-  calendarButton: {
-    height: "36px",
-  },
-  hasTasks: {
-    border: '1px solid #cecece', borderRadius: '10px', background: '#f8f8f8'
-  }
-}))
+const useStyles = taskWrapperStyler
 
 export default function TasksWrapper() {
   const classes = useStyles()
@@ -58,7 +40,7 @@ export default function TasksWrapper() {
   const [name, setName] = useState("")
   const [description, setDescription] = useState("")
   const [updateName, setUpdateName] = useState("")
-  const [updateDescription, setUpdateDescription] = useState('')
+  const [updateDescription, setUpdateDescription] = useState("")
   const [updateCurrentDate, setUpdateCurrentDate] = useState(new Date())
   const [tasks, setTasks] = useState([])
   const [currentDate, handleDateChange] = useState(new Date())
@@ -67,20 +49,20 @@ export default function TasksWrapper() {
   const [tasksFetched, setTasksFetched] = useState(false)
   const confirm = useConfirm()
 
-  useKeypress('ArrowLeft', () => {
+  useKeypress("ArrowLeft", () => {
     handleCurrentDateChange(-1)
-  });
+  })
 
-  useKeypress('ArrowRight', () => {
+  useKeypress("ArrowRight", () => {
     handleCurrentDateChange(1)
-  });
+  })
 
-  useKeypress('Enter', () => {
+  useKeypress("Enter", () => {
     setShouldOpenCreateModal(true)
-  });
+  })
 
   const fetchTasks = (date = null) => {
-    date = date ? date : new Date()
+    date = date ? date : new Date();
     axios
       .get("http://localhost:3001/tasks", {
         params: {
@@ -91,35 +73,30 @@ export default function TasksWrapper() {
         },
       })
       .then((res) => {
-        setTasks(res.data.tasks)
-        setCompletionPercentage(res.data.completion_percentage)
-        setTasksFetched(true)
+        setTasks(res.data.tasks);
+        setCompletionPercentage(res.data.completion_percentage);
+        setTasksFetched(true);
       })
       .catch((err) => {
-        console.log(err)
-      })
+        console.log(err);
+      });
   }
 
   const handleSubmit = () => {
     axios
       .post(
-        "http://localhost:3001/tasks",
-        {
+        "http://localhost:3001/tasks", {
           name,
           deadline: selectedDate,
           description,
         },
-        {
-          headers: {
-            Authorization: `Basic ${localStorage.getItem("token")}`,
-          },
-        }
+        authHeader
       )
       .then((res) => {
         setShouldOpenCreateModal(false)
         setTimeout(() => {
           fetchTasks(currentDate)
-        }, 400)
+        }, 300)
       })
       .catch((err) => {
         console.log(err)
@@ -135,11 +112,7 @@ export default function TasksWrapper() {
           deadline: updateCurrentDate,
           description: updateDescription,
         },
-        {
-          headers: {
-            Authorization: `Basic ${localStorage.getItem("token")}`,
-          },
-        }
+        authHeader
       )
       .then((res) => {
         setShouldOpenUpdateModal(false)
@@ -157,17 +130,17 @@ export default function TasksWrapper() {
     setUpdatingTask(task)
     setUpdateName(task.name)
     setUpdateDescription(task.description)
-    setUpdateCurrentDate(task.deadline)
+    setUpdateCurrentDate(currentDate)
     setShouldOpenUpdateModal(true)
   }
 
   const handleTaskCreateModalClose = () => {
-    setShouldOpenCreateModal(false)
-  }
+    setShouldOpenCreateModal(false);
+  };
 
   const handleTaskUpdateModalClose = () => {
-    setShouldOpenUpdateModal(false)
-  }
+    setShouldOpenUpdateModal(false);
+  };
 
   const toggleTaskCompleted = (task) => {
     axios
@@ -183,103 +156,86 @@ export default function TasksWrapper() {
         }
       )
       .then((res) => {
-        fetchTasks(currentDate)
+        fetchTasks(currentDate);
       })
       .catch((err) => {
-        console.log(err)
-      })
-  }
+        console.log(err);
+      });
+  };
 
   const handleCurrentDateChange = (addOrDeductDay) => {
-    currentDate.setDate(currentDate.getDate() + addOrDeductDay)
-    handleDateChange(currentDate)
+    currentDate.setDate(currentDate.getDate() + addOrDeductDay);
+    handleDateChange(currentDate);
 
-    fetchTasks(currentDate)
-  }
+    fetchTasks(currentDate);
+  };
 
-  useEffect(fetchTasks, [])
+  useEffect(fetchTasks, []);
 
   const isPast = (date) => {
-    return getDayOfYear(date) < getDayOfYear(new Date())
-  }
+    return getDayOfYear(date) < getDayOfYear(new Date());
+  };
 
   const isToday = (date) => {
-    const today = new Date()
+    const today = new Date();
     return (
       date.getDate() === today.getDate() &&
       date.getMonth() === today.getMonth() &&
       date.getFullYear() === today.getFullYear()
-    )
-  }
+    );
+  };
 
   const differenceInDays = (date) => {
-    const today = new Date()
-    const diffTime = today - date
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    const today = new Date();
+    const diffTime = today - date;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays > 0) {
-      return `${Math.abs(diffDays)} days ago`
+      return `${Math.abs(diffDays)} days ago`;
     }
 
-    return `In ${Math.abs(diffDays)} days`
-  }
+    return `In ${Math.abs(diffDays)} days`;
+  };
 
   const getDayDescription = (date) => {
     if (isToday(date)) {
-      return "Today"
+      return "Today";
     } else if (isYesterday(date)) {
-      return "Yesterday"
+      return "Yesterday";
     } else if (isTomorrow(date)) {
-      return "Tomorrow"
+      return "Tomorrow";
     } else {
-      return differenceInDays(date)
+      return differenceInDays(date);
     }
-  }
+  };
 
   const setCurrentDateQuickPick = (date) => {
-    handleDateChange(date)
-    setSelectedDate(date)
-    fetchTasks(date)
-  }
+    handleDateChange(date);
+    setSelectedDate(date);
+    fetchTasks(date);
+  };
 
   const deleteTask = (e, task) => {
-    if (e.stopPropagation()) e.stopPropagation()
-      confirm({
-        description: "Deleting a task is a permanent action.",
-      })
+    if (e.stopPropagation()) e.stopPropagation();
+    confirm({
+      description: "Deleting a task is a permanent action.",
+    })
       .then(() => {
-        axios.delete(`http://localhost:3001/tasks/${task.id}`, {
+        axios
+          .delete(`http://localhost:3001/tasks/${task.id}`, {
             headers: {
               Authorization: `Basic ${localStorage.getItem("token")}`,
             },
           })
-         .then(res => {
-          fetchTasks(currentDate)
-         })
-         .catch(err => {
-          console.log(err)
-         })
+          .then((res) => {
+            fetchTasks(currentDate);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })
-      .catch(() => {
-        
-      });
-  }
-
-  const determineTaskCompletionSentiment = () => {
-    if (!completionPercentage) return ['#cc0000', <SentimentVeryDissatisfiedIcon style={{ fontSize: "32px" }} />,  "rgba(204, 0, 0, 0.1)"]
-
-    if (completionPercentage < 25) {
-      return ['#cc0000', <SentimentVeryDissatisfiedIcon style={{ fontSize: "32px" }}/>, "rgba(204, 0, 0, 0.1)"]
-    } else if (completionPercentage <= 50) {
-      return ['#cc6500', <SentimentDissatisfiedIcon style={{ fontSize: "32px" }}/>, "rgba(204, 101, 0, 0.1)"]
-    } else if (completionPercentage < 75) {
-      return ['#CBCC00', <SentimentSatisfiedIcon style={{ fontSize: "32px" }}/>, "rgba(203, 204, 0, 0.1)"]
-    } else if (completionPercentage < 90) {
-      return ['#7fcc00', <SentimentSatisfiedAltIcon style={{ fontSize: "32px" }}/>, "rgba(127, 204, 0, 0.1)"]
-    }
-
-    return ['#33cc00', <SentimentVerySatisfiedIcon style={{ fontSize: "32px" }}/>, "rgba(51, 204, 0, 0.1)"]
-  }
+      .catch(() => {});
+  };
 
   return (
     <div>
@@ -292,174 +248,135 @@ export default function TasksWrapper() {
             className={classes.button}
             startIcon={<AddCircleOutlineIcon />}
             onClick={() => {
-              setShouldOpenCreateModal(true)
+              setShouldOpenCreateModal(true);
             }}
           >
             Add
           </Button>
         </Grid>
-        <Grid item xs={2} style={{ color: determineTaskCompletionSentiment()[0], position: 'relative', maxWidth: '121px', padding: '7px' }} className={tasks.length > 0 ? classes.hasTasks : null}>
-          <div style={{ display: 'inline-block', position: 'absolute', top: '10px'}}>
-            {completionPercentage != null ? determineTaskCompletionSentiment()[1] : ''}
-          </div>
-          <div style={{ display: 'inline-block', textAlign: 'center', marginLeft: '35px' }}>
-            <div style={{ fontWeight: 'bold', fontSize: '19px', marginBottom: '-11px' }}>{completionPercentage != null ? `${completionPercentage}%` : ''}</div>
-            <div><i style={{ fontSize: '14px', left: '89px' }}>{completionPercentage != null ? `completed` : ''}</i></div>
-          </div>
-          
-        </Grid>
         <Grid
           item
-          xs={8}
-          id="date_section"
+          xs={2}
+          style={{
+            color: determineTaskCompletionSentiment(completionPercentage)[0],
+            position: "relative",
+          }}
         >
-            <Grid container spacing={2} justify="flex-end">
-              <Grid item>
-                <IconButton 
-                  className={`${classes.calendarButton} ${classes.button}`}
-                  onClick={() => {
-                    handleCurrentDateChange(-1)
-                  }}>
-                  <ChevronLeftIcon color="primary" />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <div style={{ display: 'inline-block', textAlign: 'center', position: 'relative', width: '140px' }}>
-                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <DatePicker
-                      autoOk
-                      value={currentDate}
-                      onChange={(date) => setCurrentDateQuickPick(date)}
-                      showTodayButton
-                      format="E MMM d Y"
-                      InputProps={{
-                        disableUnderline: true
-                      }}
-                      inputProps={{ style: { textAlign: 'center' } }}
-                      labelFunc={(date) => { return date.toDateString() }}
-                      id="central_date_picker"
-                    />
-                  </MuiPickersUtilsProvider>
-                  <span>
-                    <i>{getDayDescription(currentDate)}</i>
-                  </span>
-                </div>
-              </Grid>
-              <Grid item>
-                <IconButton 
-                  className={`${classes.calendarButton} ${classes.button}`}
-                  onClick={() => {
-                    handleCurrentDateChange(1)
-                  }}>
-                  <ChevronRightIcon color="primary" />
-                </IconButton>
-              </Grid>
+          <div
+            style={{ maxWidth: "121px", padding: "7px" }}
+            className={tasks.length > 0 ? classes.hasTasks : null}
+          >
+            <div
+              style={{
+                display: "inline-block",
+                position: "absolute",
+                top: "22px",
+              }}
+            >
+              {completionPercentage != null
+                ? determineTaskCompletionSentiment(completionPercentage)[1]
+                : ""}
+            </div>
+            <div
+              style={{
+                display: "inline-block",
+                textAlign: "center",
+                marginLeft: "35px",
+              }}
+            >
+              <div
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "19px",
+                  marginBottom: "-11px",
+                }}
+              >
+                {completionPercentage != null ? `${completionPercentage}%` : ""}
+              </div>
+              <div>
+                <i style={{ fontSize: "14px", left: "89px" }}>
+                  {completionPercentage != null ? `completed` : ""}
+                </i>
+              </div>
+            </div>
+          </div>
+        </Grid>
+        <Grid item xs={8} id="date_section">
+          <Grid container spacing={2} justify="flex-end">
+            <Grid item>
+              <IconButton
+                className={`${classes.calendarButton} ${classes.button}`}
+                onClick={() => {
+                  handleCurrentDateChange(-1);
+                }}
+              >
+                <ChevronLeftIcon color="primary" />
+              </IconButton>
             </Grid>
+            <Grid item>
+              <div
+                style={{
+                  display: "inline-block",
+                  textAlign: "center",
+                  position: "relative",
+                  width: "140px",
+                }}
+              >
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <DatePicker
+                    autoOk
+                    value={currentDate}
+                    onChange={(date) => setCurrentDateQuickPick(date)}
+                    showTodayButton
+                    format="E MMM d Y"
+                    InputProps={{
+                      disableUnderline: true,
+                    }}
+                    inputProps={{ style: { textAlign: "center" } }}
+                    labelFunc={(date) => {
+                      return date.toDateString();
+                    }}
+                    id="central_date_picker"
+                  />
+                </MuiPickersUtilsProvider>
+                <span>
+                  <i>{getDayDescription(currentDate)}</i>
+                </span>
+              </div>
+            </Grid>
+            <Grid item>
+              <IconButton
+                className={`${classes.calendarButton} ${classes.button}`}
+                onClick={() => {
+                  handleCurrentDateChange(1);
+                }}
+              >
+                <ChevronRightIcon color="primary" />
+              </IconButton>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
-      <Dialog
-        open={shouldOpenCreateModal}
-        onClose={handleTaskCreateModalClose}
-        aria-labelledby="form-dialog-title"
-      >
-        <DialogTitle id="form-dialog-title">Add new task</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Name"
-            type="text"
-            fullWidth
-            required
-            onChange={(e) => {
-              setName(e.target.value)
-            }}
-          />
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <DatePicker
-              value={selectedDate}
-              disablePast
-              onChange={(date) => setSelectedDate(date)}
-              label="Day"
-              showTodayButton
-              style={{ marginTop: "35px", marginBottom: "4px" }}
-            />
-          </MuiPickersUtilsProvider>
-          <TextField
-            margin="dense"
-            id="description"
-            label="Description"
-            type="text"
-            fullWidth
-            multiline
-            rows="2"
-            onChange={(e) => {
-              setDescription(e.target.value)
-            }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleTaskCreateModalClose}>Cancel</Button>
-          <Button onClick={handleSubmit} color="primary">
-            Add
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        open={shouldOpenUpdateModal}
-        onClose={handleTaskUpdateModalClose}
-        aria-labelledby="form-dialog-title"
-      >
-        <DialogTitle id="form-dialog-title">Update task</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Name"
-            type="text"
-            fullWidth
-            required
-            value={updateName}
-            onChange={(e) => {
-              setUpdateName(e.target.value)
-            }}
-          />
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <DatePicker
-              value={currentDate}
-              disablePast
-              onChange={(date) => setUpdateCurrentDate(date)}
-              label="Day"
-              showTodayButton
-              style={{ marginTop: "35px", marginBottom: "4px" }}
-            />
-          </MuiPickersUtilsProvider>
-          <TextField
-            value={updateDescription}
-            margin="dense"
-            id="description"
-            label="Description"
-            type="text"
-            fullWidth
-            multiline
-            rows="2"
-            onChange={(e) => {
-              setUpdateDescription(e.target.value)
-            }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleTaskUpdateModalClose}>Cancel</Button>
-          <Button onClick={handleUpdate} color="primary">
-            Done
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <TaskCreateDialog shouldOpenCreateModal={shouldOpenCreateModal}
+                        handleTaskCreateModalClose={handleTaskCreateModalClose}
+                        selectedDate={selectedDate}
+                        setSelectedDate={setSelectedDate}
+                        setName={setName}
+                        setDescription={setDescription}
+                        handleSubmit={handleSubmit} />
+      <TaskUpdateDialog shouldOpenUpdateModal={shouldOpenUpdateModal}
+                        handleTaskUpdateModalClose={handleTaskUpdateModalClose}
+                        updateName={updateName}
+                        updateDescription={updateDescription}
+                        currentDate={currentDate}
+                        updateCurrentDate={updateCurrentDate}
+                        setUpdateCurrentDate={setUpdateCurrentDate}
+                        setUpdateName={setUpdateName}
+                        setUpdateDescription={setUpdateDescription}
+                        handleUpdate={handleUpdate} />
       <List className={classes.root} style={{ paddingTop: "15px" }}>
         {tasks.map((task) => {
-          const labelId = `checkbox-list-label-${task.id}`
+          const labelId = `checkbox-list-label-${task.id}`;
 
           return (
             <ListItem
@@ -469,21 +386,17 @@ export default function TasksWrapper() {
               button
               disabled={isPast(currentDate) ? true : false}
               onClick={() => {
-                toggleTaskCompleted(task)
-              }}> 
+                toggleTaskCompleted(task);
+              }}
+            >
               <Grid
                 container
                 direction="row"
                 justify="space-between"
                 alignItems="center"
               >
-                <Grid item
-                  button> 
-                  <Grid
-                    container
-                    direction="row"
-                    alignItems="center"
-                  >
+                <Grid item button>
+                  <Grid container direction="row" alignItems="center">
                     <Grid item>
                       <ListItemIcon>
                         <Checkbox
@@ -492,7 +405,9 @@ export default function TasksWrapper() {
                           tabIndex={-1}
                           disableRipple
                           inputProps={{ "aria-labelledby": labelId }}
-                          style={{ color: `${task.is_completed ? '#43a047' : ''}` }}
+                          style={{
+                            color: `${task.is_completed ? "#43a047" : ""}`,
+                          }}
                         />
                       </ListItemIcon>
                     </Grid>
@@ -502,23 +417,31 @@ export default function TasksWrapper() {
                   </Grid>
                 </Grid>
                 <Grid item>
-                  <IconButton aria-label="edit" className={classes.margin} onClick={(e) => handleSetUpdatingTask(task, e)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="delete"
-                    color="secondary"
-                    className={classes.margin}
-                    onClick={(e) => deleteTask(e, task)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  <Tooltip title="Edit">
+                    <IconButton
+                      aria-label="edit"
+                      className={classes.margin}
+                      onClick={(e) => handleSetUpdatingTask(task, e)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton
+                      aria-label="delete"
+                      color="secondary"
+                      className={classes.margin}
+                      onClick={(e) => deleteTask(e, task)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
               </Grid>
             </ListItem>
-          )
+          );
         })}
       </List>
     </div>
-  )
+  );
 }

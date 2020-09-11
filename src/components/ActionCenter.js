@@ -50,6 +50,7 @@ export default function IconLabelTabs() {
     <Box>
       <Paper square className={classes.root}>
         <Tabs
+          selectionFollowsFocus
           value={value}
           onChange={handleChange}
           variant="fullWidth"
