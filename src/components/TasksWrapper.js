@@ -1,35 +1,21 @@
 import React, { useState, useEffect } from "react"
-import Button from "@material-ui/core/Button"
-import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline"
-import TextField from "@material-ui/core/TextField"
-import Dialog from "@material-ui/core/Dialog"
-import DialogActions from "@material-ui/core/DialogActions"
-import DialogContent from "@material-ui/core/DialogContent"
-import DialogTitle from "@material-ui/core/DialogTitle"
 import DateFnsUtils from "@date-io/date-fns"
 import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers"
 import axios from "axios"
-import Checkbox from "@material-ui/core/Checkbox"
 import List from "@material-ui/core/List"
-import ListItem from "@material-ui/core/ListItem"
-import ListItemIcon from "@material-ui/core/ListItemIcon"
-import TaskItem from "./TaskItem"
 import Grid from "@material-ui/core/Grid"
 import ChevronRightIcon from "@material-ui/icons/ChevronRight"
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft"
-import { isYesterday, isTomorrow, isBefore, getDayOfYear } from "date-fns"
 import IconButton from "@material-ui/core/IconButton"
-import DeleteIcon from "@material-ui/icons/Delete"
-import EditIcon from "@material-ui/icons/Edit"
-import { useConfirm } from "material-ui-confirm"
 import useKeypress from "react-use-keypress"
-import Tooltip from "@material-ui/core/Tooltip"
 import determineTaskCompletionSentiment from "../util/determine-sentiment"
 import taskWrapperStyler from '../stylers/task-wrapper'
-import authHeader from '../util//auth-header'
+import authHeader from '../util/auth-header'
 import TaskCreateDialog from '../components/dialogs/TaskCreate'
 import TaskUpdateDialog from '../components/dialogs/TaskUpdate'
-
+import TaskListItemWrapper from '../components/partials/TaskListItemWrapper'
+import getDayDescription from '../util/day-descriptor'
+import AddItem from '../components/buttons/AddItem'
 const useStyles = taskWrapperStyler
 
 export default function TasksWrapper() {
@@ -46,8 +32,6 @@ export default function TasksWrapper() {
   const [currentDate, handleDateChange] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(currentDate)
   const [completionPercentage, setCompletionPercentage] = useState(null)
-  const [tasksFetched, setTasksFetched] = useState(false)
-  const confirm = useConfirm()
 
   useKeypress("ArrowLeft", () => {
     handleCurrentDateChange(-1)
@@ -75,7 +59,6 @@ export default function TasksWrapper() {
       .then((res) => {
         setTasks(res.data.tasks);
         setCompletionPercentage(res.data.completion_percentage);
-        setTasksFetched(true);
       })
       .catch((err) => {
         console.log(err);
@@ -172,87 +155,17 @@ export default function TasksWrapper() {
 
   useEffect(fetchTasks, []);
 
-  const isPast = (date) => {
-    return getDayOfYear(date) < getDayOfYear(new Date());
-  };
-
-  const isToday = (date) => {
-    const today = new Date();
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    );
-  };
-
-  const differenceInDays = (date) => {
-    const today = new Date();
-    const diffTime = today - date;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays > 0) {
-      return `${Math.abs(diffDays)} days ago`;
-    }
-
-    return `In ${Math.abs(diffDays)} days`;
-  };
-
-  const getDayDescription = (date) => {
-    if (isToday(date)) {
-      return "Today";
-    } else if (isYesterday(date)) {
-      return "Yesterday";
-    } else if (isTomorrow(date)) {
-      return "Tomorrow";
-    } else {
-      return differenceInDays(date);
-    }
-  };
-
   const setCurrentDateQuickPick = (date) => {
     handleDateChange(date);
     setSelectedDate(date);
     fetchTasks(date);
   };
 
-  const deleteTask = (e, task) => {
-    if (e.stopPropagation()) e.stopPropagation();
-    confirm({
-      description: "Deleting a task is a permanent action.",
-    })
-      .then(() => {
-        axios
-          .delete(`http://localhost:3001/tasks/${task.id}`, {
-            headers: {
-              Authorization: `Basic ${localStorage.getItem("token")}`,
-            },
-          })
-          .then((res) => {
-            fetchTasks(currentDate);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch(() => {});
-  };
-
   return (
     <div>
       <Grid container spacing={3} justify="space-end" alignItems="center">
         <Grid item xs={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            text="white"
-            className={classes.button}
-            startIcon={<AddCircleOutlineIcon />}
-            onClick={() => {
-              setShouldOpenCreateModal(true);
-            }}
-          >
-            Add
-          </Button>
+          <AddItem classes={classes} setShouldOpenCreateModal={setShouldOpenCreateModal} />
         </Grid>
         <Grid
           item
@@ -357,89 +270,37 @@ export default function TasksWrapper() {
           </Grid>
         </Grid>
       </Grid>
-      <TaskCreateDialog shouldOpenCreateModal={shouldOpenCreateModal}
-                        handleTaskCreateModalClose={handleTaskCreateModalClose}
-                        selectedDate={selectedDate}
-                        setSelectedDate={setSelectedDate}
-                        setName={setName}
-                        setDescription={setDescription}
-                        handleSubmit={handleSubmit} />
-      <TaskUpdateDialog shouldOpenUpdateModal={shouldOpenUpdateModal}
-                        handleTaskUpdateModalClose={handleTaskUpdateModalClose}
-                        updateName={updateName}
-                        updateDescription={updateDescription}
-                        currentDate={currentDate}
-                        updateCurrentDate={updateCurrentDate}
-                        setUpdateCurrentDate={setUpdateCurrentDate}
-                        setUpdateName={setUpdateName}
-                        setUpdateDescription={setUpdateDescription}
-                        handleUpdate={handleUpdate} />
+      <TaskCreateDialog 
+        shouldOpenCreateModal={shouldOpenCreateModal}
+        handleTaskCreateModalClose={handleTaskCreateModalClose}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+        setName={setName}
+        setDescription={setDescription}
+        handleSubmit={handleSubmit} />
+      <TaskUpdateDialog 
+        shouldOpenUpdateModal={shouldOpenUpdateModal}
+        handleTaskUpdateModalClose={handleTaskUpdateModalClose}
+        updateName={updateName}
+        updateDescription={updateDescription}
+        currentDate={currentDate}
+        updateCurrentDate={updateCurrentDate}
+        setUpdateCurrentDate={setUpdateCurrentDate}
+        setUpdateName={setUpdateName}
+        setUpdateDescription={setUpdateDescription}
+        handleUpdate={handleUpdate} />
       <List className={classes.root} style={{ paddingTop: "15px" }}>
         {tasks.map((task) => {
           const labelId = `checkbox-list-label-${task.id}`;
 
-          return (
-            <ListItem
-              key={task.id}
-              role={undefined}
-              dense
-              button
-              disabled={isPast(currentDate) ? true : false}
-              onClick={() => {
-                toggleTaskCompleted(task);
-              }}
-            >
-              <Grid
-                container
-                direction="row"
-                justify="space-between"
-                alignItems="center"
-              >
-                <Grid item button>
-                  <Grid container direction="row" alignItems="center">
-                    <Grid item>
-                      <ListItemIcon>
-                        <Checkbox
-                          edge="start"
-                          checked={task.is_completed}
-                          tabIndex={-1}
-                          disableRipple
-                          inputProps={{ "aria-labelledby": labelId }}
-                          style={{
-                            color: `${task.is_completed ? "#43a047" : ""}`,
-                          }}
-                        />
-                      </ListItemIcon>
-                    </Grid>
-                    <Grid item>
-                      <TaskItem id={labelId} task={task} />
-                    </Grid>
-                  </Grid>
-                </Grid>
-                <Grid item>
-                  <Tooltip title="Edit">
-                    <IconButton
-                      aria-label="edit"
-                      className={classes.margin}
-                      onClick={(e) => handleSetUpdatingTask(task, e)}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton
-                      aria-label="delete"
-                      color="secondary"
-                      className={classes.margin}
-                      onClick={(e) => deleteTask(e, task)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Grid>
-              </Grid>
-            </ListItem>
-          );
+          return <TaskListItemWrapper 
+                    labelId={labelId}
+                    task={task}
+                    classes={classes}
+                    currentDate={currentDate} 
+                    toggleTaskCompleted={toggleTaskCompleted} 
+                    handleSetUpdatingTask={handleSetUpdatingTask} 
+                    fetchTasks={fetchTasks} />
         })}
       </List>
     </div>
