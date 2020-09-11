@@ -21,15 +21,19 @@ import axios from "axios";
 import format from "date-fns/format";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import Skeleton from "@material-ui/lab/Skeleton";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import {
   differenceInCalendarDays,
   isToday,
   isYesterday,
   isTomorrow,
-  isPast
+  isPast,
 } from "date-fns";
+import ArchiveIcon from "@material-ui/icons/Archive";
+import DeleteIcon from "@material-ui/icons/Archive";
+import Tooltip from "@material-ui/core/Tooltip";
+import IconButton from "@material-ui/core/IconButton";
+import { useConfirm } from "material-ui-confirm";
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -94,8 +98,9 @@ export default function GoalsWrapper() {
   const [updateTarget, setUpdateTarget] = useState("");
   const [updatingGoal, setUpdatingGoal] = useState(null);
   const [updateMeasuredIn, setUpdateMeasuredIn] = useState("");
-  const [addProgress, setAddProgress] = useState(1)
-  const [updateDate, setUpdateDate] = useState(null)
+  const [addProgress, setAddProgress] = useState(1);
+  const [updateDate, setUpdateDate] = useState(null);
+  const confirm = useConfirm();
 
   const handleSubmit = () => {
     axios
@@ -185,23 +190,41 @@ export default function GoalsWrapper() {
     setUpdateTarget(goal.target);
     setUpdateMeasuredIn(goal.measured_in);
     setShouldOpenUpdateModal(true);
-    console.log(goal.deadline)
-    console.log(new Date(goal.deadline))
-    setUpdateDate(new Date(goal.deadline))
+    console.log(goal.deadline);
+    console.log(new Date(goal.deadline));
+    setUpdateDate(new Date(goal.deadline));
   };
 
-  useEffect(fetchGoals, []);
+  const archiveGoal = (e, goal) => {
+    e.stopPropagation();
+    confirm({
+      description: `You are trying to archive this goal. 
+                   Once you archive it you won't see it by default, but only by applying the archived filter. 
+                   You can restore archived goals anytime.`,
+    })
+      .then(() => {
+        console.log("ARCHIVED YES");
+      })
+      .catch(() => {
+        console.log('ARCHIVED NO');
+      });
+  };
 
-  // if (!goalsFetched) {
-  //   return (
-  //     <div style={{ margin: "-12px" }}>
-  //       <Skeleton variant="rect" width={976} height={76} />
-  //       <Skeleton />
-  //       <Skeleton />
-  //       <Skeleton />
-  //     </div>
-  //   );
-  // }
+  const deleteGoal = (e, goal) => {
+    e.stopPropagation()
+    confirm({
+      description:
+        "Deleting a goal is a permanent action.",
+    })
+      .then(() => {
+        console.log("ARCHIVED YES");
+      })
+      .catch(() => {
+        console.log("ARCHIVED NO");
+      });
+  }
+
+  useEffect(fetchGoals, []);
 
   return (
     <div>
@@ -217,7 +240,13 @@ export default function GoalsWrapper() {
       >
         Add
       </Button>
-      <Dialog open={shouldOpenCreateModal} aria-labelledby="form-dialog-title">
+      <Dialog
+        open={shouldOpenCreateModal}
+        onClose={() => {
+          setShouldOpenCreateModal(false);
+        }}
+        aria-labelledby="form-dialog-title"
+      >
         <DialogTitle id="form-dialog-title">Add new goal</DialogTitle>
         <DialogContent>
           <TextField
@@ -254,9 +283,9 @@ export default function GoalsWrapper() {
                   <MenuItem value="hours">Hours</MenuItem>
                   <MenuItem value="steps">Steps</MenuItem>
                   <MenuItem value="items">Items</MenuItem>
-                  <MenuItem value="percentage">%</MenuItem>
-                  <MenuItem value="dollars">$</MenuItem>
-                  <MenuItem value="euros">&euro;</MenuItem>
+                  <MenuItem value="percentage">Percents (%)</MenuItem>
+                  <MenuItem value="dollars">Dollars ($)</MenuItem>
+                  <MenuItem value="euros">Euros (&euro;)</MenuItem>
                   <MenuItem value="times">Times</MenuItem>
                   <MenuItem value="weeks">Weeks</MenuItem>
                   <MenuItem value="days">Days</MenuItem>
@@ -362,7 +391,13 @@ export default function GoalsWrapper() {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={shouldOpenUpdateModal} aria-labelledby="form-dialog-title">
+      <Dialog
+        open={shouldOpenUpdateModal}
+        onClose={() => {
+          setShouldOpenUpdateModal(false);
+        }}
+        aria-labelledby="form-dialog-title"
+      >
         <DialogTitle id="form-dialog-title">Update goal</DialogTitle>
         <DialogContent>
           <TextField
@@ -522,7 +557,7 @@ export default function GoalsWrapper() {
                 handleSelectUpdateGoal(goal);
               }}
               style={{
-                marginBottom: "10px",
+                marginBottom: "20px",
                 borderRadius: "3px",
                 border: "1px solid #cccccc",
               }}
@@ -536,19 +571,53 @@ export default function GoalsWrapper() {
                 }}
               >
                 <div style={{ paddingBottom: "10px" }}>
-                  <span style={{ fontSize: "17px" }} id={labelId}>
-                    <strong>{goal.name}</strong> &middot; {" "}
-                    {goal.current_progress}/{goal.target}{" "}
-                    {measuredInOptions[goal.measured_in]} (<strong>{calculateCompletionPercentage(goal)}%</strong>) &middot;
-                    <i>
-                      &nbsp;
-                      due on&nbsp;
-                      <strong>
-                        {(new Date(goal.deadline)).toString().slice(0, -43)} 
-                        {/* {(new Date(goal.deadline)).to()}  */}
-                        &nbsp;({calculateDifferenceInDays(new Date(goal.deadline))})</strong>
-                    </i>
-                  </span>
+                  <Grid
+                    container
+                    spacing={3}
+                    justify="space-end"
+                    alignItems="center"
+                  >
+                    <Grid item xs={10}>
+                      <span style={{ fontSize: "17px" }} id={labelId}>
+                        <strong>{goal.name}</strong> &middot;{" "}
+                        {goal.current_progress}/{goal.target}{" "}
+                        {measuredInOptions[goal.measured_in]} (
+                        <strong>{calculateCompletionPercentage(goal)}%</strong>)
+                        &middot;
+                        <i>
+                          &nbsp; due on&nbsp;
+                          <strong>
+                            {new Date(goal.deadline).toString().slice(0, -43)}
+                            {/* {(new Date(goal.deadline)).to()}  */}
+                            &nbsp;(
+                            {calculateDifferenceInDays(new Date(goal.deadline))}
+                            )
+                          </strong>
+                        </i>
+                      </span>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <IconButton
+                        aria-label="delete"
+                        className={classes.margin}
+                        onClick={(e) => archiveGoal(e, goal)}
+                      >
+                        <Tooltip title="Archive">
+                          <ArchiveIcon style={{ color: "#ffc107" }} />
+                        </Tooltip>
+                      </IconButton>
+                      <IconButton
+                        aria-label="delete"
+                        color="secondary"
+                        className={classes.margin}
+                        onClick={(e) => deleteGoal(e, goal)}
+                      >
+                        <Tooltip title="Delete">
+                          <DeleteIcon />
+                        </Tooltip>
+                      </IconButton>
+                    </Grid>
+                  </Grid>
                 </div>
                 <div>
                   <LinearProgress

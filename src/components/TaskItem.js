@@ -17,7 +17,7 @@ export default function TaskItem(props) {
   return (
     <div id="divid">
       <span className={`${classes.task} ${props.task.is_completed ? classes.completed : ''}`}>
-        {props.task.name}<i>{props.task.description ? `(${props.task.description})` : ''}</i></span>
+        <b>{props.task.name.replace(/^\w/, (c) => c.toUpperCase())}</b> <i>{props.task.description ? `(${props.task.description})` : ''}</i></span>
     </div>
   )
 }

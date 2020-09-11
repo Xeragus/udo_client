@@ -112,6 +112,7 @@ export default function SignUp() {
                     className={classes.textContent}
                     style={{color: '#403c3cde'}}
                     onChange={(e) => {setFirstName(e.target.value)}}
+                    autoFocus
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>

@@ -27,7 +27,8 @@ import SentimentDissatisfiedIcon from '@material-ui/icons/SentimentDissatisfied'
 import SentimentSatisfiedIcon from '@material-ui/icons/SentimentSatisfied'
 import SentimentSatisfiedAltIcon from '@material-ui/icons/SentimentSatisfiedAlt'
 import SentimentVerySatisfiedIcon from '@material-ui/icons/SentimentVerySatisfied'
-import Skeleton from '@material-ui/lab/Skeleton';
+import { useConfirm } from "material-ui-confirm";
+import useKeypress from 'react-use-keypress';
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -44,6 +45,9 @@ const useStyles = makeStyles((theme) => ({
   calendarButton: {
     height: "36px",
   },
+  hasTasks: {
+    border: '1px solid #cecece', borderRadius: '10px', background: '#f8f8f8'
+  }
 }))
 
 export default function TasksWrapper() {
@@ -61,6 +65,19 @@ export default function TasksWrapper() {
   const [selectedDate, setSelectedDate] = useState(currentDate)
   const [completionPercentage, setCompletionPercentage] = useState(null)
   const [tasksFetched, setTasksFetched] = useState(false)
+  const confirm = useConfirm()
+
+  useKeypress('ArrowLeft', () => {
+    handleCurrentDateChange(-1)
+  });
+
+  useKeypress('ArrowRight', () => {
+    handleCurrentDateChange(1)
+  });
+
+  useKeypress('Enter', () => {
+    setShouldOpenCreateModal(true)
+  });
 
   const fetchTasks = (date = null) => {
     date = date ? date : new Date()
@@ -136,8 +153,7 @@ export default function TasksWrapper() {
   }
 
   const handleSetUpdatingTask = (task, e) => {
-    e.cancelBubble = true;
-    if(e.stopPropagation) e.stopPropagation();  
+    e.stopPropagation()
     setUpdatingTask(task)
     setUpdateName(task.name)
     setUpdateDescription(task.description)
@@ -226,8 +242,13 @@ export default function TasksWrapper() {
     fetchTasks(date)
   }
 
-  const deleteTask = (id) => {
-    axios.delete(`http://localhost:3001/tasks/${id}`, {
+  const deleteTask = (e, task) => {
+    if (e.stopPropagation()) e.stopPropagation()
+      confirm({
+        description: "Deleting a task is a permanent action.",
+      })
+      .then(() => {
+        axios.delete(`http://localhost:3001/tasks/${task.id}`, {
             headers: {
               Authorization: `Basic ${localStorage.getItem("token")}`,
             },
@@ -238,33 +259,26 @@ export default function TasksWrapper() {
          .catch(err => {
           console.log(err)
          })
+      })
+      .catch(() => {
+        
+      });
   }
 
   const determineTaskCompletionSentiment = () => {
-    if (!completionPercentage) return ['#cc0000', <SentimentVeryDissatisfiedIcon style={{ fontSize: "50px" }} />,  "rgba(204, 0, 0, 0.1)"]
+    if (!completionPercentage) return ['#cc0000', <SentimentVeryDissatisfiedIcon style={{ fontSize: "32px" }} />,  "rgba(204, 0, 0, 0.1)"]
 
     if (completionPercentage < 25) {
-      return ['#cc0000', <SentimentVeryDissatisfiedIcon style={{ fontSize: "50px" }}/>, "rgba(204, 0, 0, 0.1)"]
+      return ['#cc0000', <SentimentVeryDissatisfiedIcon style={{ fontSize: "32px" }}/>, "rgba(204, 0, 0, 0.1)"]
     } else if (completionPercentage <= 50) {
-      return ['#cc6500', <SentimentDissatisfiedIcon style={{ fontSize: "50px" }}/>, "rgba(204, 101, 0, 0.1)"]
+      return ['#cc6500', <SentimentDissatisfiedIcon style={{ fontSize: "32px" }}/>, "rgba(204, 101, 0, 0.1)"]
     } else if (completionPercentage < 75) {
-      return ['#CBCC00', <SentimentSatisfiedIcon style={{ fontSize: "50px" }}/>, "rgba(203, 204, 0, 0.1)"]
+      return ['#CBCC00', <SentimentSatisfiedIcon style={{ fontSize: "32px" }}/>, "rgba(203, 204, 0, 0.1)"]
     } else if (completionPercentage < 90) {
-      return ['#7fcc00', <SentimentSatisfiedAltIcon style={{ fontSize: "50px" }}/>, "rgba(127, 204, 0, 0.1)"]
+      return ['#7fcc00', <SentimentSatisfiedAltIcon style={{ fontSize: "32px" }}/>, "rgba(127, 204, 0, 0.1)"]
     }
 
-    return ['#33cc00', <SentimentVerySatisfiedIcon style={{ fontSize: "50px" }}/>, "rgba(51, 204, 0, 0.1)"]
-  }
-
-  if (!tasksFetched) {
-    return (
-      <div style={{ margin: '-12px' }}>
-        <Skeleton variant="rect" width={976} height={76} />
-        <Skeleton />
-        <Skeleton />
-        <Skeleton />
-      </div>
-    )
+    return ['#33cc00', <SentimentVerySatisfiedIcon style={{ fontSize: "32px" }}/>, "rgba(51, 204, 0, 0.1)"]
   }
 
   return (
@@ -284,12 +298,12 @@ export default function TasksWrapper() {
             Add
           </Button>
         </Grid>
-        <Grid item xs={2} style={{ color: determineTaskCompletionSentiment()[0], position: 'relative' }}>
-          <div style={{ display: 'inline-block', position: 'absolute', top: '11px'}}>
+        <Grid item xs={2} style={{ color: determineTaskCompletionSentiment()[0], position: 'relative', maxWidth: '121px', padding: '7px' }} className={tasks.length > 0 ? classes.hasTasks : null}>
+          <div style={{ display: 'inline-block', position: 'absolute', top: '10px'}}>
             {completionPercentage != null ? determineTaskCompletionSentiment()[1] : ''}
           </div>
-          <div style={{ display: 'inline-block', textAlign: 'center', marginLeft: '75px' }}>
-            <div style={{ fontWeight: 'bold', fontSize: '28px', marginBottom: '-14px' }}>{completionPercentage != null ? `${completionPercentage}%` : ''}</div>
+          <div style={{ display: 'inline-block', textAlign: 'center', marginLeft: '35px' }}>
+            <div style={{ fontWeight: 'bold', fontSize: '19px', marginBottom: '-11px' }}>{completionPercentage != null ? `${completionPercentage}%` : ''}</div>
             <div><i style={{ fontSize: '14px', left: '89px' }}>{completionPercentage != null ? `completed` : ''}</i></div>
           </div>
           
@@ -495,7 +509,7 @@ export default function TasksWrapper() {
                     aria-label="delete"
                     color="secondary"
                     className={classes.margin}
-                    onClick={() => deleteTask(task.id)}
+                    onClick={(e) => deleteTask(e, task)}
                   >
                     <DeleteIcon />
                   </IconButton>

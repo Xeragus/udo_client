@@ -93,6 +93,7 @@ const SignIn = () => {
               name="email"
               autoComplete="email"
               onChange={e => setEmail(e.target.value)}
+              autoFocus
             />
             <TextField
               variant="outlined"

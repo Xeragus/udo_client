@@ -8,10 +8,20 @@ import PieChartIcon from '@material-ui/icons/PieChart';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/auth-context';
+import { useConfirm } from "material-ui-confirm";
 
 export default function MenuItems(props) {
   const auth = useContext(AuthContext)
-  const handleLogout = () => { auth.logout()}
+  const confirm = useConfirm()
+  const handleLogout = () => { 
+    confirm({
+      description: "You are trying to log out.",
+    })
+    .then(() => {
+      auth.logout()
+    })
+    .catch(() => {});
+   }
 
   return (
     <div>

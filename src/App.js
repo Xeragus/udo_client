@@ -4,23 +4,19 @@ import {
   BrowserRouter as Router,
   Route,
   Switch,
-  Redirect
-} from 'react-router-dom';
+  Redirect,
+} from "react-router-dom";
 import SignIn from "./components/auth/SignIn";
 import SignUp from "./components/auth/SignUp";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
-import {
-  AuthProvider,
-  AuthContext
-} from './context/auth-context';
-import { FetchProvider } from './context/fetch-context';
-import Paper from '@material-ui/core/Paper';
+import { AuthProvider, AuthContext } from "./context/auth-context";
+import { FetchProvider } from "./context/fetch-context";
+import Paper from "@material-ui/core/Paper";
+import { ConfirmProvider } from "material-ui-confirm";
 
-const LoadingFallback = () => (
-  <div></div>
-);
-const Home = lazy(() => import('./components/Home'));
-const Stats = lazy(() => import('./components/Stats'));
+const LoadingFallback = () => <div></div>;
+const Home = lazy(() => import("./components/Home"));
+const Stats = lazy(() => import("./components/Stats"));
 const UnauthenticatedRoutes = () => (
   <Switch>
     <Route path="/signin">
@@ -40,7 +36,7 @@ const AuthenticatedRoute = ({ children, ...rest }) => {
   return (
     <Route
       {...rest}
-      render={() => 
+      render={() =>
         auth.isAuthenticated() ? (
           <div>{children}</div>
         ) : (
@@ -74,25 +70,27 @@ const App = () => {
       primary: {
         main: "#19cffc",
       },
-      type: 'light'
+      type: "light",
     },
-  })
+  });
 
   return (
     <ThemeProvider theme={theme}>
-      <Paper style={{ height: '100vh' }}>
-        <Router>
-          <AuthProvider>
-            <FetchProvider>
-              <div>
-                <AppRoutes />
-              </div>
-            </FetchProvider>
-          </AuthProvider>
-        </Router>
-      </Paper>
+      <ConfirmProvider>
+        <Paper style={{ height: "100vh" }}>
+          <Router>
+            <AuthProvider>
+              <FetchProvider>
+                <div>
+                  <AppRoutes />
+                </div>
+              </FetchProvider>
+            </AuthProvider>
+          </Router>
+        </Paper>
+      </ConfirmProvider>
     </ThemeProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;
