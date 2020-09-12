@@ -20,7 +20,7 @@ export default function GoalsFilter(props) {
         >
           Cancel
         </Button>
-        <Button onClick={props.handleUpdate} color='primary'>
+        <Button onClick={props.handleFilter} color='primary'>
           Filter
         </Button>
       </DialogActions>

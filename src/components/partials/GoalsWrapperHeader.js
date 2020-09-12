@@ -6,6 +6,7 @@ import FilterListIcon from '@material-ui/icons/FilterList'
 import AddItem from '../buttons/AddItem'
 
 export default function GoalsWrapperHeader(props) {
+  
   return (
     <Grid
       container

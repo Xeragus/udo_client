@@ -8,10 +8,8 @@ import TextField from '@material-ui/core/TextField';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import Grid from '@material-ui/core/Grid';
-import MeasuredInMenuItems from "../partials/MeasuredInSelect";
 import DateFnsUtils from '@date-io/date-fns'
 import format from 'date-fns/format'
-import { useConfirm } from 'material-ui-confirm'
 import FormControl from "@material-ui/core/FormControl";
 import clsx from 'clsx';
 import MeasuredInSelect from '../partials/MeasuredInSelect'
@@ -29,13 +27,12 @@ class LocalizedUtils extends DateFnsUtils {
 }
 
 export default function GoalCreate(props) {
-  const confirm = useConfirm();
   const [name, setName] = useState('');
   const [measuredIn, setMeasuredIn] = useState('hours');
   const [startFrom, setStartFrom] = useState(0);
   const [target, setTarget] = useState(1);
-  const [selectedDate, setSelectedDate] = useState(currentDate);
   const [currentDate, handleDateChange] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(currentDate);
 
   const handleSubmit = () => {
     axios
@@ -89,9 +86,6 @@ export default function GoalCreate(props) {
               measuredIn={measuredIn}
               setMeasuredIn={setMeasuredIn}
             />
-            <FormControl className={props.classes.formControl}>
-              <InputLabel id="demo-simple-select-label">Measured in</InputLabel>
-            </FormControl>
           </Grid>
           <Grid item xs={3}>
             <FormControl

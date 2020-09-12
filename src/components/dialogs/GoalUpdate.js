@@ -18,6 +18,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import MeasuredInSelect from '../partials/MeasuredInSelect'
 import measuredInOptions from '../../util/measured-in-options'
 import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers"
+import axios from 'axios'
 
 class LocalizedUtils extends DateFnsUtils {
   getDatePickerHeaderText(date) {
@@ -26,6 +27,31 @@ class LocalizedUtils extends DateFnsUtils {
 }
 
 export default function GoalUpdate(props) {
+  const handleUpdate = () => {
+    axios
+      .patch(
+        `http://localhost:3001/goals/${props.updatingGoal.id}`,
+        {
+          name: props.updateName,
+          measured_in: props.updateMeasuredIn,
+          target: props.updateTarget,
+          deadline: props.updateDate,
+        },
+        {
+          headers: {
+            Authorization: `Basic ${localStorage.getItem('token')}`,
+          },
+        }
+      )
+      .then((res) => {
+        props.setShouldOpenUpdateModal(false)
+        props.fetchGoals()
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
+
   return (
     <Dialog
       open={props.shouldOpenUpdateModal}
@@ -82,41 +108,10 @@ export default function GoalUpdate(props) {
             </FormControl>
           </Grid>
           <Grid item xs={3}>
-            <FormControl className={props.classes.formControl}>
-              <InputLabel id="demo-simple-select-label">Measured in</InputLabel>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={props.updateMeasuredIn}
-                onChange={(e) => { props.setUpdateMeasuredIn(e.target.value) }}
-              >
-                <MenuItem value="hours">Hours</MenuItem>
-                <MenuItem value="steps">Steps</MenuItem>
-                <MenuItem value="items">Items</MenuItem>
-                <MenuItem value="percentage">Percents</MenuItem>
-                <MenuItem value="dollars">Dollars</MenuItem>
-                <MenuItem value="euros">Euros</MenuItem>
-                <MenuItem value="times">Times</MenuItem>
-                <MenuItem value="weeks">Weeks</MenuItem>
-                <MenuItem value="days">Days</MenuItem>
-                <MenuItem value="lbs">Lbs</MenuItem>
-                <MenuItem value="kgs">Kgs</MenuItem>
-                <MenuItem value="miles">Miles</MenuItem>
-                <MenuItem value="kms">Km</MenuItem>
-                <MenuItem value="books">Books</MenuItem>
-                <MenuItem value="chapters">Chapters</MenuItem>
-                <MenuItem value="pages">Pages</MenuItem>
-                <MenuItem value="words">Words</MenuItem>
-                <MenuItem value="courses">Courses</MenuItem>
-                <MenuItem value="sessions">Sessions</MenuItem>
-                <MenuItem value="classes">Classes</MenuItem>
-                <MenuItem value="videos">Videos</MenuItem>
-              </Select>
-            </FormControl>
             <MeasuredInSelect
               classes={props.classes}
-              measuredIn={props.measuredIn}
-              setMeasuredIn={props.setMeasuredIn}
+              measuredIn={props.updateMeasuredIn}
+              setMeasuredIn={props.setUpdateMeasuredIn}
             />
           </Grid>
           <Grid item xs={3}>
@@ -169,7 +164,7 @@ export default function GoalUpdate(props) {
         >
           Cancel
         </Button>
-        <Button onClick={props.handleUpdate} color="primary">
+        <Button onClick={handleUpdate} color="primary">
           Update
         </Button>
       </DialogActions>
