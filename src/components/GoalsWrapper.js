@@ -3,7 +3,6 @@ import axios from 'axios'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import { isPast } from 'date-fns'
-import { useConfirm } from 'material-ui-confirm'
 import GoalsWrapperHeader from './partials/GoalsWrapperHeader'
 import GoalCreate from './dialogs/GoalCreate'
 import GoalUpdate from './dialogs/GoalUpdate'
@@ -25,12 +24,15 @@ export default function GoalsWrapper() {
   const [updateMeasuredIn, setUpdateMeasuredIn] = useState('')
   const [addProgress, setAddProgress] = useState(1)
   const [updateDate, setUpdateDate] = useState(null)
-  const confirm = useConfirm()
   const [shouldOpenFilters, setShouldOpenFilters] = useState(false)
+  const [goalStatus, setGoalStatus] = useState('active')
 
-  const fetchGoals = () => {
+  const fetchGoals = (status = 'active') => {
     axios
       .get('http://localhost:3001/goals', {
+        params: {
+          status: status
+        },
         headers: {
           Authorization: `Basic ${localStorage.getItem('token')}`,
         },
@@ -70,6 +72,7 @@ export default function GoalsWrapper() {
         classes={classes}
         shouldOpenCreateModal={shouldOpenCreateModal}
         setShouldOpenCreateModal={setShouldOpenCreateModal}
+        openFilterDialog={openFilterDialog}
       />
       <GoalCreate
         setShouldOpenCreateModal={setShouldOpenCreateModal}
@@ -96,6 +99,9 @@ export default function GoalsWrapper() {
       <GoalsFilter
         shouldOpenFilters={shouldOpenFilters}
         setShouldOpenFilters={setShouldOpenFilters}
+        goalStatus={goalStatus}
+        setGoalStatus={setGoalStatus}
+        fetchGoals={fetchGoals}
       />
       <List className={classes.root} style={{ paddingTop: '15px' }}>
         {goals.map((goal) => {
@@ -117,6 +123,7 @@ export default function GoalsWrapper() {
                     classes={classes}
                     goal={goal}
                     props={labelId}
+                    fetchGoals={fetchGoals}
                     completedPercentage={calculateCompletionPercentage(goal)}
                   />
                 </div>

@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react"
-import DateFnsUtils from "@date-io/date-fns"
-import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers"
 import axios from "axios"
 import List from "@material-ui/core/List"
 import Grid from "@material-ui/core/Grid"
@@ -14,8 +12,8 @@ import authHeader from '../util/auth-header'
 import TaskCreateDialog from '../components/dialogs/TaskCreate'
 import TaskUpdateDialog from '../components/dialogs/TaskUpdate'
 import TaskListItemWrapper from '../components/partials/TaskListItemWrapper'
-import getDayDescription from '../util/day-descriptor'
 import AddItem from '../components/buttons/AddItem'
+import TaskHeader from './partials/TaskHeader'
 const useStyles = taskWrapperStyler
 
 export default function TasksWrapper() {
@@ -227,35 +225,10 @@ export default function TasksWrapper() {
               </IconButton>
             </Grid>
             <Grid item>
-              <div
-                style={{
-                  display: "inline-block",
-                  textAlign: "center",
-                  position: "relative",
-                  width: "140px",
-                }}
-              >
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                  <DatePicker
-                    autoOk
-                    value={currentDate}
-                    onChange={(date) => setCurrentDateQuickPick(date)}
-                    showTodayButton
-                    format="E MMM d Y"
-                    InputProps={{
-                      disableUnderline: true,
-                    }}
-                    inputProps={{ style: { textAlign: "center" } }}
-                    labelFunc={(date) => {
-                      return date.toDateString();
-                    }}
-                    id="central_date_picker"
-                  />
-                </MuiPickersUtilsProvider>
-                <span>
-                  <i>{getDayDescription(currentDate)}</i>
-                </span>
-              </div>
+              <TaskHeader
+                setCurrentDateQuickPick={setCurrentDateQuickPick}
+                currentDate={currentDate}
+              />
             </Grid>
             <Grid item>
               <IconButton

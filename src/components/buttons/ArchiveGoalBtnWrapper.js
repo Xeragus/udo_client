@@ -3,6 +3,7 @@ import React from 'react'
 import IconButton from '@material-ui/core/IconButton'
 import ArchiveIcon from '@material-ui/icons/Archive'
 import { useConfirm } from 'material-ui-confirm'
+import axios from 'axios'
 
 export default function ArchiveGoalBtnWrapper(props) {
   const confirm = useConfirm();
@@ -15,11 +16,26 @@ export default function ArchiveGoalBtnWrapper(props) {
                    You can restore archived goals anytime.`,
     })
       .then(() => {
-        console.log('ARCHIVED YES');
+        axios
+          .patch(
+            `http://localhost:3001/goals/${goal.id}`,
+            {
+              status: 'archived'
+            },
+            {
+              headers: {
+                Authorization: `Basic ${localStorage.getItem('token')}`,
+              },
+            }
+          )
+          .then((res) => {
+            props.fetchGoals()
+          })
+          .catch((err) => {
+            console.log(err)
+          })
       })
-      .catch(() => {
-        console.log('ARCHIVED NO');
-      });
+      .catch(() => {});
   };
 
   return (

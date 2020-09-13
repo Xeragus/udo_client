@@ -6,7 +6,6 @@ import FilterListIcon from '@material-ui/icons/FilterList'
 import AddItem from '../buttons/AddItem'
 
 export default function GoalsWrapperHeader(props) {
-  
   return (
     <Grid
       container
@@ -22,7 +21,7 @@ export default function GoalsWrapperHeader(props) {
           <IconButton
             aria-label='delete'
             className={props.classes.margin}
-            onClick={(e) => { props.openFilterDialog() }}
+            onClick={(e) => { props.openFilterDialog(e) }}
           >
             <FilterListIcon />
           </IconButton>

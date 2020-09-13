@@ -20,7 +20,11 @@ export default function GoalItem(props) {
         />
       </Grid>
       <Grid item xs={2}>
-        <ArchiveGoalBtnWrapper classes={props.classes} />
+        <ArchiveGoalBtnWrapper 
+          classes={props.classes}
+          fetchGoals={props.fetchGoals}
+          goal={props.goal}
+        />
         <DeleteGoalBtnWrapper classes={props.classes} />
       </Grid>
     </Grid>
