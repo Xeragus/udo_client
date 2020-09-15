@@ -51,6 +51,9 @@ export default function GoalsWrapper() {
   }
 
   const handleSelectUpdateGoal = (goal) => {
+    if (!updateable(goal)) {
+      return;
+    }
     setUpdatingGoal(goal)
     setUpdateName(goal.name)
     setUpdateTarget(goal.target)
@@ -64,6 +67,12 @@ export default function GoalsWrapper() {
     setShouldOpenFilters(true)
   }
 
+  const updateable = (goal) => {
+    if (goal.status == 'active') return true
+
+    return false
+  }
+
   useEffect(fetchGoals, []);
 
   return (
@@ -73,6 +82,7 @@ export default function GoalsWrapper() {
         shouldOpenCreateModal={shouldOpenCreateModal}
         setShouldOpenCreateModal={setShouldOpenCreateModal}
         openFilterDialog={openFilterDialog}
+        goal={goals.length > 0 ? goals[0] : null}
       />
       <GoalCreate
         setShouldOpenCreateModal={setShouldOpenCreateModal}
@@ -87,9 +97,8 @@ export default function GoalsWrapper() {
         updateName={updateName}
         setUpdateName={setUpdateName}
         classes={classes}
-        addProgress={addProgress}
-        setAddProgress={setAddProgress}
         updateMeasuredIn={updateMeasuredIn}
+        updateTarget={updateTarget}
         setUpdateTarget={setUpdateTarget}
         updateDate={updateDate}
         setUpdateDate={setUpdateDate}
@@ -112,7 +121,7 @@ export default function GoalsWrapper() {
               key={goal.id}
               role={undefined}
               dense
-              button
+              button={updateable(goal)}
               onClick={() => { handleSelectUpdateGoal(goal) }}
               style={{ marginBottom: '20px', borderRadius: '3px', border: '1px solid #cccccc' }}
               disabled={isPast(new Date(goal.deadline)) ? true : false}
@@ -127,7 +136,7 @@ export default function GoalsWrapper() {
                     completedPercentage={calculateCompletionPercentage(goal)}
                   />
                 </div>
-                <LinearProgressWrapper value={calculateCompletionPercentage(goal)} />
+                <LinearProgressWrapper goal={goal} value={calculateCompletionPercentage(goal)} />
               </div>
             </ListItem>
           )

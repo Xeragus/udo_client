@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -19,6 +19,7 @@ import MeasuredInSelect from '../partials/MeasuredInSelect'
 import measuredInOptions from '../../util/measured-in-options'
 import { DateTimePicker, MuiPickersUtilsProvider } from "@material-ui/pickers"
 import axios from 'axios'
+import GoalCompletedCelebrationDialog from "./GoalCompletedCelebrationDialog";
 
 class LocalizedUtils extends DateFnsUtils {
   getDatePickerHeaderText(date) {
@@ -27,6 +28,9 @@ class LocalizedUtils extends DateFnsUtils {
 }
 
 export default function GoalUpdate(props) {
+  const [addProgress, setAddProgress] = useState(1)
+  const [shouldOpenGoalCelebrationsModal, setShouldOpenGoalCelebrationsModal] = useState(false)
+
   const handleUpdate = () => {
     axios
       .patch(
@@ -36,6 +40,7 @@ export default function GoalUpdate(props) {
           measured_in: props.updateMeasuredIn,
           target: props.updateTarget,
           deadline: props.updateDate,
+          add_progress: parseFloat(addProgress),
         },
         {
           headers: {
@@ -44,6 +49,9 @@ export default function GoalUpdate(props) {
         }
       )
       .then((res) => {
+        if (res.data.status == 'completed') {
+          setShouldOpenGoalCelebrationsModal(true)
+        }
         props.setShouldOpenUpdateModal(false)
         props.fetchGoals()
       })
@@ -53,6 +61,7 @@ export default function GoalUpdate(props) {
   }
 
   return (
+    <div>
     <Dialog
       open={props.shouldOpenUpdateModal}
       onClose={() => {
@@ -92,7 +101,7 @@ export default function GoalUpdate(props) {
               </InputLabel>
               <Input
                 id="standard-adornment-weight-3"
-                value={props.addProgress}
+                value={addProgress}
                 endAdornment={
                   <InputAdornment position="end">
                     {measuredInOptions[props.updateMeasuredIn]}
@@ -103,7 +112,7 @@ export default function GoalUpdate(props) {
                   "aria-label": "weight",
                 }}
                 required={true}
-                onChange={(e) => { props.setAddProgress(e.target.value) }}
+                onChange={(e) => { setAddProgress(e.target.value) }}
               />
             </FormControl>
           </Grid>
@@ -169,5 +178,9 @@ export default function GoalUpdate(props) {
         </Button>
       </DialogActions>
     </Dialog>
+    <GoalCompletedCelebrationDialog 
+      shouldOpenGoalCelebrationsModal={shouldOpenGoalCelebrationsModal}
+      setShouldOpenGoalCelebrationsModal={setShouldOpenGoalCelebrationsModal}/>
+    </div>
   )
 }

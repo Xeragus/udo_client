@@ -6,7 +6,7 @@ export default function LinearProgressWrapper(props) {
     <div>
       <LinearProgress
         variant='determinate'
-        value={parseInt(props.value)}
+        value={props.goal.status == 'completed' ? 100 : parseInt(props.value)}
         style={{ width: '100%', height: '8px', borderRadius: '3px' }}
       />
     </div>

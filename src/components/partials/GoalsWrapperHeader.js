@@ -17,6 +17,7 @@ export default function GoalsWrapperHeader(props) {
         <AddItem classes={props.classes} setShouldOpenCreateModal={props.setShouldOpenCreateModal} />
       </Grid>
       <Grid item>
+        <i>{props.goal ? `viewing ${props.goal.status}` : 'no goals to show'}</i>
         <Tooltip title='Filters'>
           <IconButton
             aria-label='delete'
