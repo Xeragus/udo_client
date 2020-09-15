@@ -43,7 +43,7 @@ export default function GoalCreate(props) {
           measured_in: measuredIn,
           start_from: startFrom,
           target,
-          deadline: new Date(selectedDate),
+          deadline: new Date(selectedDate).toString(),
         },
         authHeaders
       )

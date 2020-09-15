@@ -17,13 +17,13 @@ export default function GoalsWrapperHeader(props) {
         <AddItem classes={props.classes} setShouldOpenCreateModal={props.setShouldOpenCreateModal} />
       </Grid>
       <Grid item>
-        <i>{props.goal ? `viewing ${props.goal.status}` : 'no goals to show'}</i>
         <Tooltip title='Filters'>
           <IconButton
             aria-label='delete'
             className={props.classes.margin}
             onClick={(e) => { props.openFilterDialog(e) }}
           >
+            <i style={{ fontSize: '15px', marginRight: '10px' }}>{props.goal ? `viewing ${props.goal.status}` : 'no goals to show'}</i>
             <FilterListIcon />
           </IconButton>
         </Tooltip>

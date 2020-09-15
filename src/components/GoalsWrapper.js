@@ -124,7 +124,6 @@ export default function GoalsWrapper() {
               button={updateable(goal)}
               onClick={() => { handleSelectUpdateGoal(goal) }}
               style={{ marginBottom: '20px', borderRadius: '3px', border: '1px solid #cccccc' }}
-              disabled={isPast(new Date(goal.deadline)) ? true : false}
             >
               <div style={{ width: '100%', paddingTop: '15px', paddingBottom: '15px' }}>
                 <div style={{ paddingBottom: '10px' }}>
