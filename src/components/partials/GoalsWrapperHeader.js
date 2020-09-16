@@ -23,7 +23,7 @@ export default function GoalsWrapperHeader(props) {
             className={props.classes.margin}
             onClick={(e) => { props.openFilterDialog(e) }}
           >
-            <i style={{ fontSize: '15px', marginRight: '10px' }}>{props.goal ? `viewing ${props.goal.status}` : 'no goals to show'}</i>
+            <i style={{ fontSize: '15px', marginRight: '10px' }}>{`viewing ${props.goalStatus}: ${props.goals.length} ${props.goals.length == 1 ? 'goal' : 'goals'}`}</i>
             <FilterListIcon />
           </IconButton>
         </Tooltip>

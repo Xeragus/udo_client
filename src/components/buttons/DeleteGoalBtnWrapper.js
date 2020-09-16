@@ -1,8 +1,10 @@
 import Tooltip from '@material-ui/core/Tooltip'
 import React from 'react'
 import IconButton from '@material-ui/core/IconButton'
-import DeleteIcon from '@material-ui/icons/Archive'
+import DeleteIcon from '@material-ui/icons/Delete'
 import { useConfirm } from 'material-ui-confirm'
+import authHeader from '../../util/auth-header'
+import axios from 'axios'
 
 export default function DeleteGoalBtnWrapper(props) {
   const confirm = useConfirm();
@@ -13,11 +15,14 @@ export default function DeleteGoalBtnWrapper(props) {
       description: 'Deleting a goal is a permanent action.',
     })
       .then(() => {
-        console.log('ARCHIVED YES');
+        axios
+          .delete(`http://localhost:3001/goals/${props.goal.id}`, authHeader)
+          .then((res) => {
+            props.fetchGoals()
+          })
+          .catch((err) => { console.log(err) })
       })
-      .catch(() => {
-        console.log('ARCHIVED NO');
-      });
+      .catch(() => {});
   };
 
   return (

@@ -19,6 +19,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import measuredInOptions from '../../util/measured-in-options'
 import authHeaders from '../../util/auth-header'
 import axios from 'axios'
+import { addDays } from "date-fns";
 
 class LocalizedUtils extends DateFnsUtils {
   getDatePickerHeaderText(date) {
@@ -31,7 +32,7 @@ export default function GoalCreate(props) {
   const [measuredIn, setMeasuredIn] = useState('hours');
   const [startFrom, setStartFrom] = useState(0);
   const [target, setTarget] = useState(1);
-  const [currentDate, handleDateChange] = useState(new Date());
+  const [currentDate, handleDateChange] = useState(addDays(new Date(), 1));
   const [selectedDate, setSelectedDate] = useState(currentDate);
 
   const handleSubmit = () => {
@@ -44,6 +45,7 @@ export default function GoalCreate(props) {
           start_from: startFrom,
           target,
           deadline: new Date(selectedDate).toString(),
+          current_progress: startFrom
         },
         authHeaders
       )

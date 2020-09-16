@@ -17,8 +17,6 @@ export default function GoalsFilter(props) {
     props.setShouldOpenFilters(false)
   }
 
-  console.log(props.goalStatus)
-
   return (
     <Dialog
       open={props.shouldOpenFilters}

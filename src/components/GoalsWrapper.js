@@ -39,7 +39,7 @@ export default function GoalsWrapper() {
       })
       .then((res) => {
         setGoals(res.data.goals)
-        console.log(res.data)
+        setGoalStatus(status)
       })
       .catch((err) => {
         console.log(err)
@@ -82,7 +82,8 @@ export default function GoalsWrapper() {
         shouldOpenCreateModal={shouldOpenCreateModal}
         setShouldOpenCreateModal={setShouldOpenCreateModal}
         openFilterDialog={openFilterDialog}
-        goal={goals.length > 0 ? goals[0] : null}
+        goals={goals}
+        goalStatus={goalStatus}
       />
       <GoalCreate
         setShouldOpenCreateModal={setShouldOpenCreateModal}
