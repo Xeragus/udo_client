@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
-import { isPast } from 'date-fns'
 import GoalsWrapperHeader from './partials/GoalsWrapperHeader'
 import GoalCreate from './dialogs/GoalCreate'
 import GoalUpdate from './dialogs/GoalUpdate'
@@ -22,7 +21,6 @@ export default function GoalsWrapper() {
   const [updateTarget, setUpdateTarget] = useState('')
   const [updatingGoal, setUpdatingGoal] = useState(null)
   const [updateMeasuredIn, setUpdateMeasuredIn] = useState('')
-  const [addProgress, setAddProgress] = useState(1)
   const [updateDate, setUpdateDate] = useState(null)
   const [shouldOpenFilters, setShouldOpenFilters] = useState(false)
   const [goalStatus, setGoalStatus] = useState('active')
@@ -133,6 +131,7 @@ export default function GoalsWrapper() {
                     goal={goal}
                     props={labelId}
                     fetchGoals={fetchGoals}
+                    goalStatus={goalStatus}
                     completedPercentage={calculateCompletionPercentage(goal)}
                   />
                 </div>

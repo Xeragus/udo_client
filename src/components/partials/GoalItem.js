@@ -26,6 +26,7 @@ export default function GoalItem(props) {
               classes={props.classes}
               fetchGoals={props.fetchGoals}
               goal={props.goal}
+              goalStatus={props.goalStatus}
             />
           </Grid>
           <Grid item xs='6'>
@@ -33,6 +34,7 @@ export default function GoalItem(props) {
               goal={props.goal}
               fetchGoals={props.fetchGoals}
               classes={props.classes}
+              goalStatus={props.goalStatus}
             />
           </Grid>
         </Grid>

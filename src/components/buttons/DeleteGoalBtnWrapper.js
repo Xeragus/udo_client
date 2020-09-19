@@ -18,7 +18,7 @@ export default function DeleteGoalBtnWrapper(props) {
         axios
           .delete(`http://localhost:3001/goals/${props.goal.id}`, authHeader)
           .then((res) => {
-            props.fetchGoals()
+            props.fetchGoals(props.goalStatus)
           })
           .catch((err) => { console.log(err) })
       })

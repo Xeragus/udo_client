@@ -37,7 +37,7 @@ export default function ArchiveGoalBtnWrapper(props) {
             }
           )
           .then((res) => {
-            props.fetchGoals()
+            props.fetchGoals(props.goalStatus)
           })
           .catch((err) => {
             console.log(err)
