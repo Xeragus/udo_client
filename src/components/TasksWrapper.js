@@ -30,6 +30,7 @@ export default function TasksWrapper() {
   const [currentDate, handleDateChange] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(currentDate)
   const [completionPercentage, setCompletionPercentage] = useState(null)
+  const [selectedTags, setSelectedTags] = useState([])
 
   useKeypress("ArrowLeft", () => {
     handleCurrentDateChange(-1)
@@ -64,12 +65,14 @@ export default function TasksWrapper() {
   }
 
   const handleSubmit = () => {
+    // console.log(selectedTags)
     axios
       .post(
         "http://localhost:3001/tasks", {
           name,
           deadline: selectedDate,
           description,
+          tags: selectedTags
         },
         authHeader
       )
@@ -250,7 +253,9 @@ export default function TasksWrapper() {
         setSelectedDate={setSelectedDate}
         setName={setName}
         setDescription={setDescription}
-        handleSubmit={handleSubmit} />
+        handleSubmit={handleSubmit}
+        selectedTags={selectedTags}
+        setSelectedTags={setSelectedTags} />
       <TaskUpdateDialog 
         shouldOpenUpdateModal={shouldOpenUpdateModal}
         handleTaskUpdateModalClose={handleTaskUpdateModalClose}
@@ -273,7 +278,9 @@ export default function TasksWrapper() {
                     currentDate={currentDate} 
                     toggleTaskCompleted={toggleTaskCompleted} 
                     handleSetUpdatingTask={handleSetUpdatingTask} 
-                    fetchTasks={fetchTasks} />
+                    fetchTasks={fetchTasks}
+                    setSelectedTags={setSelectedTags}
+                  />
         })}
       </List>
     </div>

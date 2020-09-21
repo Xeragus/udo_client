@@ -12,6 +12,8 @@ import EditIcon from "@material-ui/icons/Edit"
 import authHeader from '../../util/auth-header'
 import { useConfirm } from "material-ui-confirm"
 import axios from "axios"
+import TagsDisplay from "./TagsDisplay"
+import HashtagChipsDisplay from './HashtagChipsDisplay'
 
 export default function TaskListItemWrapper(props) {
   const confirm = useConfirm()
@@ -70,6 +72,7 @@ export default function TaskListItemWrapper(props) {
             </Grid>
             <Grid item>
               <TaskItem id={props.labelId} task={props.task} />
+              <HashtagChipsDisplay selectedTags={props.task.tags} task={props.task} />
             </Grid>
           </Grid>
         </Grid>
