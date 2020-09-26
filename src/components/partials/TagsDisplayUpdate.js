@@ -2,28 +2,25 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import Chip from '@material-ui/core/Chip';
 
-export default function TagsDisplay(props) {
+export default function TagsDisplayUpdate(props) {
   const handleDelete = (name) => {
-      const filteredTags = props.selectedTags.filter(tag => {
+      const filteredTags = props.updateTags.filter(tag => {
         return tag.name != name
       })
 
-      props.setSelectedTags([...filteredTags])
-  }
-
-  if (props.selectedTags.length < 1) {
-    return <div></div>
+      props.setUpdateTags([...filteredTags])
   }
 
   return (
     <div style={{ marginTop: '6px' }}>
       <Grid container spacing={1}>
-        {props.selectedTags.map(tag => {
+        {props.updateTags.map(tag => {
           return  (
-            <Grid item>
+            <Grid item kye={tag.name}>
               <Chip
                 label={tag.name}
                 onDelete={() => { handleDelete(tag.name) }}
+                key={tag.name}
               />
             </Grid>
           )

@@ -17,8 +17,8 @@ export default function HashtagChipsDisplay(props) {
       <Grid container spacing={1}>
         {props.selectedTags.map(tag => {
           return  (
-            <Grid item>
-              <span className={`${props.task.is_completed ? classes.completed : ''}`}>#{tag.name}</span>
+            <Grid item key={props.task.id}>
+              <span key={props.task.id} className={`${props.task.is_completed ? classes.completed : ''}`}>#{tag.name}</span>
             </Grid>
           )
         })}

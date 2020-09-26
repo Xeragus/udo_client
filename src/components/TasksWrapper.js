@@ -31,6 +31,7 @@ export default function TasksWrapper() {
   const [selectedDate, setSelectedDate] = useState(currentDate)
   const [completionPercentage, setCompletionPercentage] = useState(null)
   const [selectedTags, setSelectedTags] = useState([])
+  const [updateTags, setUpdateTags] = useState([])
 
   useKeypress("ArrowLeft", () => {
     handleCurrentDateChange(-1)
@@ -65,7 +66,6 @@ export default function TasksWrapper() {
   }
 
   const handleSubmit = () => {
-    // console.log(selectedTags)
     axios
       .post(
         "http://localhost:3001/tasks", {
@@ -78,6 +78,7 @@ export default function TasksWrapper() {
       )
       .then((res) => {
         setShouldOpenCreateModal(false)
+        setSelectedTags([])
         setTimeout(() => {
           fetchTasks(currentDate)
         }, 300)
@@ -88,6 +89,8 @@ export default function TasksWrapper() {
   }
 
   const handleUpdate = () => {
+    console.log('pred handle update', updateTags)
+    console.log('pred handle update sel tags', setSelectedTags)
     axios
       .put(
         `http://localhost:3001/tasks/${updatingTask.id}`,
@@ -95,6 +98,7 @@ export default function TasksWrapper() {
           name: updateName,
           deadline: updateCurrentDate,
           description: updateDescription,
+          tags: updateTags
         },
         authHeader
       )
@@ -116,6 +120,8 @@ export default function TasksWrapper() {
     setUpdateDescription(task.description)
     setUpdateCurrentDate(currentDate)
     setShouldOpenUpdateModal(true)
+    console.log('go resetira update tags pred da se update-ira vo handleSetUpdatingTask')
+    setUpdateTags(task.tags)
   }
 
   const handleTaskCreateModalClose = () => {
@@ -161,6 +167,11 @@ export default function TasksWrapper() {
     setSelectedDate(date);
     fetchTasks(date);
   };
+
+  const setTagsBeforeUpdate = (tags) => {
+    console.log(updateTags)
+    console.log(tags)
+  }
 
   return (
     <div>
@@ -266,7 +277,11 @@ export default function TasksWrapper() {
         setUpdateCurrentDate={setUpdateCurrentDate}
         setUpdateName={setUpdateName}
         setUpdateDescription={setUpdateDescription}
-        handleUpdate={handleUpdate} />
+        handleUpdate={handleUpdate}
+        updateTags={updateTags}
+        setUpdateTags={setUpdateTags}
+        selectedTags={selectedTags}
+        setSelectedTags={setSelectedTags} />
       <List className={classes.root} style={{ paddingTop: "15px" }}>
         {tasks.map((task) => {
           const labelId = `checkbox-list-label-${task.id}`;

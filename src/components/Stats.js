@@ -16,6 +16,8 @@ import MenuItems from './MenuItems';
 import Chart from './Chart';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import StatsHeader from './partials/StatsHeader';
+import TagCompletionPieChart from './charts/TagCompletionPieChart';
 
 const drawerWidth = 240;
 
@@ -149,8 +151,19 @@ export default function ActionCenter() {
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={8} lg={9}>
-              <Paper className={fixedHeightPaper}>
+              <StatsHeader />
+              <Paper className={fixedHeightPaper} style={{ marginTop: '25px' }}>
                 <Chart />
+              </Paper>
+              <Paper style={{ marginTop: '25px' }}>
+                <Grid container spacing={2} justify="space-around">
+                  <Grid item>
+                    <TagCompletionPieChart />
+                  </Grid>
+                  <Grid item>
+                    <TagCompletionPieChart />
+                  </Grid>
+                </Grid>
               </Paper>
             </Grid>
           </Grid>

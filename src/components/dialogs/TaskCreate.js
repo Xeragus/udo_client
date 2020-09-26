@@ -90,7 +90,6 @@ export default function TaskCreateDialog(props) {
         <TagsDisplay 
           selectedTags={props.selectedTags}
           setSelectedTags={props.setSelectedTags}
-          deletable={true}
         />
       </DialogContent>
       <DialogActions>
