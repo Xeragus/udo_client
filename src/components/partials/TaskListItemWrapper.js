@@ -76,7 +76,7 @@ export default function TaskListItemWrapper(props) {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item>
+        <Grid item style={{ display: differenceInCalendarDays(new Date(props.currentDate), new Date()) >= 0 ? 'block' : 'none' }}>
           <Tooltip title="Edit">
             <IconButton
               aria-label="edit"

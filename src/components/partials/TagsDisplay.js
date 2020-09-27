@@ -22,8 +22,8 @@ export default function TagsDisplay(props) {
           return  (
             <Grid item>
               <Chip
-                label={tag.name}
-                onDelete={() => { handleDelete(tag.name) }}
+                label={tag ? tag.name : ''}
+                onDelete={() => { handleDelete(tag ? tag.name : '') }}
               />
             </Grid>
           )

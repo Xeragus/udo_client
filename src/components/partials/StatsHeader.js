@@ -59,7 +59,7 @@ export default function StatsHeader() {
         <Grid item xs={3}>
           <Paper className={classes.paper}>
             <div><i>Favorite tag</i></div>
-            <div>used <span style={{ color: '#4caf50' }} className={classes.mainNumber}>{favoriteTag[Object.keys(favoriteTag)[0]]}</span>times</div>
+            <div>used <span style={{ color: '#4caf50' }} className={classes.mainNumber}>{favoriteTag[Object.keys(favoriteTag)[0]]}</span> times</div>
             <div><b className={classes.tagName}>#{Object.keys(favoriteTag)[0]}</b></div>
           </Paper>
         </Grid>

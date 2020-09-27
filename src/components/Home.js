@@ -14,9 +14,11 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import MenuItems from './MenuItems';
 import Dashboard from './ActionCenter'
+import Avatar from '@material-ui/core/Avatar';
+import avatarImage from '../avatar.jpg'
+import Grid from "@material-ui/core/Grid"
 
 const drawerWidth = 240;
-
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
@@ -124,6 +126,16 @@ export default function ActionCenter() {
           <Typography component="h1" variant="h6" noWrap className={classes.title}>
             Action Center
           </Typography>
+          <div>
+            <Grid container spacing={2} alignItems='center'>
+              <Grid item>
+                <Avatar src={avatarImage} />
+              </Grid>
+              <Grid item>
+                <span style={{ color: '#fff',fontSize: '16px', fontWeight: 500 }}>Hi, {localStorage.getItem('first_name')}</span>
+              </Grid>
+            </Grid>
+          </div>
         </Toolbar>
       </AppBar>
       <Drawer

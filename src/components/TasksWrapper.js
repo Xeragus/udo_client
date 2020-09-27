@@ -168,14 +168,9 @@ export default function TasksWrapper() {
     fetchTasks(date);
   };
 
-  const setTagsBeforeUpdate = (tags) => {
-    console.log(updateTags)
-    console.log(tags)
-  }
-
   return (
     <div>
-      <Grid container spacing={3} justify="space-end" alignItems="center">
+      <Grid container spacing={3} alignItems="center">
         <Grid item xs={2}>
           <AddItem classes={classes} setShouldOpenCreateModal={setShouldOpenCreateModal} />
         </Grid>
@@ -286,7 +281,8 @@ export default function TasksWrapper() {
         {tasks.map((task) => {
           const labelId = `checkbox-list-label-${task.id}`;
 
-          return <TaskListItemWrapper 
+          return <TaskListItemWrapper
+                    key={task.id}
                     labelId={labelId}
                     task={task}
                     classes={classes}

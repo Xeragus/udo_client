@@ -13,7 +13,6 @@ export default function Chart() {
   const theme = useTheme();
   const [lastXDaysTaskCompletionData, setLastXDaysTaskCompletionData] = useState([])
   const [numberOfDays, setNumberOfDays] = useState(7)
-  const [lastXDaysFetched, setLastXDaysFetched] = useState(false)
 
   const fetchLastXDaysTaskCompletionData = (numberOfDays) => {
     axios
@@ -34,7 +33,6 @@ export default function Chart() {
 
         setNumberOfDays(numberOfDays)
         setLastXDaysTaskCompletionData(data)
-        setLastXDaysFetched(true)
       })
       .catch((err) => {
         console.log(err)
@@ -68,21 +66,6 @@ export default function Chart() {
     },
   ];
 
-  if (!lastXDaysFetched) {
-    return (
-      <div style={{ margin: '-12px' }}>
-        <Skeleton  width={976} height={38} />
-        <Skeleton  width={976} height={38} />
-        <Skeleton  width={976} height={38} />
-        <Skeleton  width={976} height={38} />
-        <Skeleton  width={976} height={38} />
-        <Skeleton  width={976} height={38} />
-        <Skeleton  width={976} height={38} />
-        <Skeleton  width={976} height={38} />
-        <Skeleton  width={976} height={38} />
-      </div>
-    ) 
-  }
 
   return (
     <React.Fragment>

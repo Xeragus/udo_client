@@ -61,7 +61,7 @@ export default function TaskCreateDialog(props) {
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <DatePicker
                 value={props.selectedDate}
-                disablePast
+                // disablePast
                 onChange={(date) => props.setSelectedDate(date)}
                 label="Do on"
                 showTodayButton

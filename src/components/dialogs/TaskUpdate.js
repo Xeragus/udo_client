@@ -62,7 +62,7 @@ export default function TaskUpdate(props) {
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <DatePicker
                   value={props.updateCurrentDate}
-                  disablePast
+                  // disablePast
                   onChange={(date) => props.setUpdateCurrentDate(date)}
                   label="Day"
                   showTodayButton

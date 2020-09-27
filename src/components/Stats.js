@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -18,6 +18,9 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import StatsHeader from './partials/StatsHeader';
 import TagCompletionPieChart from './charts/TagCompletionPieChart';
+import axios from 'axios'
+import Avatar from '@material-ui/core/Avatar';
+import avatarImage from '../avatar.jpg'
 
 const drawerWidth = 240;
 
@@ -111,6 +114,31 @@ export default function ActionCenter() {
     setOpen(false);
   };
   const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
+  const [favoriteTags, setFavoriteTags] = useState([])
+  const [mostSuccessfullTags, setMostSuccessfullTags] = useState([])
+
+  const fetchPieChartData = () => {
+    axios
+      .get("http://localhost:3001/pie-charts-data", {
+        params: {
+          email: localStorage.getItem('email')
+        },
+        headers: {
+          Authorization: `Basic ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        setFavoriteTags([...res.data.favorite_tags])
+        setMostSuccessfullTags([...res.data.most_successfull_tags])
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
+
+  useEffect(() => {
+    fetchPieChartData()
+  }, [])
 
   return (
     <div className={classes.root}>
@@ -129,6 +157,16 @@ export default function ActionCenter() {
           <Typography component="h1" variant="h6" noWrap className={classes.title}>
             Stats
           </Typography>
+          <div>
+            <Grid container spacing={2} alignItems='center'>
+              <Grid item>
+                <Avatar src={avatarImage} />
+              </Grid>
+              <Grid item>
+                <span style={{ color: '#fff',fontSize: '16px', fontWeight: 500 }}>Hi, {localStorage.getItem('first_name')}</span>
+              </Grid>
+            </Grid>
+          </div>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -151,17 +189,17 @@ export default function ActionCenter() {
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={8} lg={9}>
-              <StatsHeader />
-              <Paper className={fixedHeightPaper} style={{ marginTop: '25px' }}>
+            <Paper className={fixedHeightPaper} style={{ marginBottom: '25px' }}>
                 <Chart />
               </Paper>
-              <Paper style={{ marginTop: '25px' }}>
+              <StatsHeader />
+              <Paper style={{ marginTop: '25px', paddingTop: '25px' }}>
                 <Grid container spacing={2} justify="space-around">
                   <Grid item>
-                    <TagCompletionPieChart />
+                    <TagCompletionPieChart data={favoriteTags} title='Tags by usage frequency' right={111} />
                   </Grid>
                   <Grid item>
-                    <TagCompletionPieChart />
+                    <TagCompletionPieChart data={mostSuccessfullTags} title='Tags by completion rate' right={120} />
                   </Grid>
                 </Grid>
               </Paper>

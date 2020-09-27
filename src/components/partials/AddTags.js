@@ -24,6 +24,8 @@ export default function AddTags(props) {
         } else {
           setValue(newValue);
         }
+        if (!newValue) return
+
         const selectedTags = props.selectedTags
         selectedTags.push(newValue)
         props.setSelectedTags([...selectedTags])
