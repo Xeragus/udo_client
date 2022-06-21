@@ -16,7 +16,7 @@ import { useHistory } from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(3),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -93,7 +93,6 @@ const SignIn = () => {
               name="email"
               autoComplete="email"
               onChange={e => setEmail(e.target.value)}
-              autoFocus
             />
             <TextField
               variant="outlined"

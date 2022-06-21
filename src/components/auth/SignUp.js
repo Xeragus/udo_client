@@ -19,14 +19,14 @@ import { useHistory } from 'react-router-dom'
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(3),
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
   },
   form: {
     width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(1),
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
@@ -112,7 +112,6 @@ export default function SignUp() {
                     className={classes.textContent}
                     style={{color: '#403c3cde'}}
                     onChange={(e) => {setFirstName(e.target.value)}}
-                    autoFocus
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
