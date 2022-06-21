@@ -8,6 +8,8 @@ import ListAltOutlinedIcon from '@material-ui/icons/ListAltOutlined';
 import AdjustOutlinedIcon from '@material-ui/icons/AdjustOutlined';
 import TasksWrapper from './TasksWrapper'
 import GoalsWrapper from './GoalsWrapper'
+import Brightness6OutlinedIcon from '@material-ui/icons/Brightness6Outlined';
+import MonetizationOnOutlinedIcon from '@material-ui/icons/MonetizationOnOutlined';
 
 const useStyles = makeStyles({
   root: {
@@ -16,6 +18,9 @@ const useStyles = makeStyles({
     margin: '0 auto',
     background: '#fff'
   },
+  tabPanel: {
+    marginTop: '20px'
+  }
 });
 
 function TabPanel(props) {
@@ -61,11 +66,13 @@ export default function IconLabelTabs() {
         >
           <Tab icon={<ListAltOutlinedIcon />} label="Tasks" />
           <Tab icon={<AdjustOutlinedIcon />} label="Goals" />
+          <Tab icon={<Brightness6OutlinedIcon />} label="Mood Tracker" />
+          <Tab icon={<MonetizationOnOutlinedIcon />} label="Money" />
         </Tabs>
-        <TabPanel value={value} index={0}>
+        <TabPanel value={value} index={0} className={classes.tabPanel}>
           <TasksWrapper />
         </TabPanel>
-        <TabPanel value={value} index={1}>
+        <TabPanel value={value} index={1} className={classes.tabPanel}>
           <GoalsWrapper />
         </TabPanel>
       </Paper>
